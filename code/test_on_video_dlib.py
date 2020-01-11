@@ -20,18 +20,27 @@ from skimage import io
 import dlib
 
 def parse_args():
-    """Parse input arguments."""
+    # default_dlib_model_path = r"C:\Noam\Code\vision_course\hopenet\models\shape_predictor_68_face_landmarks.dat"
+    default_dlib_model_path = r"C:\Noam\Code\vision_course\hopenet\models\mmod_human_face_detector.dat"
+    default_snapshot_path = r"C:\Noam\Code\vision_course\hopenet\models\hopenet_robust_alpha1.pkl"
+    default_video_path = r"C:\Noam\Code\vision_course\hopenet\videos\video.mp4"
+    default_n_frames = 60
+    default_fps = 24.  # was 30.
+
     parser = argparse.ArgumentParser(description='Head pose estimation using the Hopenet network.')
     parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
-            default=0, type=int)
+                        default=0, type=int)
     parser.add_argument('--snapshot', dest='snapshot', help='Path of model snapshot.',
-          default='', type=str)
+                        default=default_snapshot_path, type=str)
     parser.add_argument('--face_model', dest='face_model', help='Path of DLIB face detection model.',
-          default='', type=str)
-    parser.add_argument('--video', dest='video_path', help='Path of video')
+                        default=default_dlib_model_path, type=str)
+    parser.add_argument('--video', dest='video_path', help='Path of video',
+                        default=default_video_path)
     parser.add_argument('--output_string', dest='output_string', help='String appended to output file')
-    parser.add_argument('--n_frames', dest='n_frames', help='Number of frames', type=int)
-    parser.add_argument('--fps', dest='fps', help='Frames per second of source video', type=float, default=30.)
+    parser.add_argument('--n_frames', dest='n_frames', help='Number of frames', type=int,
+                        default=default_n_frames)
+    parser.add_argument('--fps', dest='fps', help='Frames per second of source video', type=float,
+                        default=default_fps)
     args = parser.parse_args()
     return args
 

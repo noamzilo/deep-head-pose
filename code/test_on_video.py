@@ -17,7 +17,7 @@ from PIL import Image
 import datasets, hopenet, utils
 
 def parse_args():
-    """Parse input arguments."""
+
     parser = argparse.ArgumentParser(description='Head pose estimation using the Hopenet network.')
     parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
             default=0, type=int)
