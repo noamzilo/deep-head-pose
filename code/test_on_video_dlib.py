@@ -23,7 +23,7 @@ def parse_args():
     # default_dlib_model_path = r"C:\Noam\Code\vision_course\hopenet\models\shape_predictor_68_face_landmarks.dat"
     default_dlib_model_path = r"C:\Noam\Code\vision_course\hopenet\models\mmod_human_face_detector.dat"
     default_snapshot_path = r"C:\Noam\Code\vision_course\hopenet\models\hopenet_robust_alpha1.pkl"
-    default_video_path = r"C:\Noam\Code\vision_course\hopenet\videos\video.mp4"
+    default_video_path = r"C:\Noam\Code\vision_course\hopenet\videos\video_resize.mp4"
     default_n_frames = 60
     default_fps = 24.  # was 30.
 
@@ -134,14 +134,16 @@ if __name__ == '__main__':
             if conf > 1.0:
                 bbox_width = abs(x_max - x_min)
                 bbox_height = abs(y_max - y_min)
-                x_min -= 2 * bbox_width / 4
-                x_max += 2 * bbox_width / 4
-                y_min -= 3 * bbox_height / 4
-                y_max += bbox_height / 4
-                x_min = max(x_min, 0); y_min = max(y_min, 0)
-                x_max = min(frame.shape[1], x_max); y_max = min(frame.shape[0], y_max)
+                x_min -= 2 * bbox_width // 4
+                x_max += 2 * bbox_width // 4
+                y_min -= 3 * bbox_height // 4
+                y_max += bbox_height // 4
+                x_min = max(x_min, 0)
+                y_min = max(y_min, 0)
+                x_max = min(frame.shape[1], x_max)
+                y_max = min(frame.shape[0], y_max)
                 # Crop image
-                img = cv2_frame[y_min:y_max,x_min:x_max]
+                img = cv2_frame[y_min:y_max, x_min:x_max]
                 img = Image.fromarray(img)
 
                 # Transform
