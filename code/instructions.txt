@@ -1,0 +1,44 @@
+cd ~ (tab)
+ssh-keygen.exe
+enter enter enter
+cd .ssh
+
+
+created id_rsa (private key) and id_rsa.pub (public key)
+see it with ls -la
+
+
+C:\Users\noams\.ssh\config
+ths file tells sh command what to do
+scp knows how to work with this file.
+
+
+set it to:
+
+Host vm-by-tutorial-vm.europe-west1-d.mdli3-264715
+    HostName 34.77.101.114
+    IdentityFile C:\Users\noams\.ssh\google_compute_engine
+    UserKnownHostsFile=C:\Users\noams\.ssh\google_compute_known_hosts
+    HostKeyAlias=compute.485222785668686438
+    IdentitiesOnly=yes
+    CheckHostIP=no
+    User noams
+	
+user on google is noams
+
+can copy the config and create a new config using
+Host gpu1-my-nice-name
+    HostName 34.77.101.114
+    IdentityFile C:\Users\noams\.ssh\google_compute_engine
+    UserKnownHostsFile=C:\Users\noams\.ssh\google_compute_known_hosts
+    HostKeyAlias=compute.485222785668686438
+    IdentitiesOnly=yes
+    CheckHostIP=no
+    User noams
+
+
+use ssh with
+ssh vm-by-tutorial-vm.europe-west1-d.mdli3-264715
+
+
+ssh gpu1
