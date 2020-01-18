@@ -1,19 +1,17 @@
 import sys, os, argparse
 
-import numpy as np
 import cv2
-import matplotlib.pyplot as plt
 
 import torch
-import torch.nn as nn
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
 from torchvision import transforms
 import torch.backends.cudnn as cudnn
 import torchvision
-import torch.nn.functional as F
 
-import datasets, hopenet, utils
+import datasets, hopenet
+from Utils import utils
+
 
 def parse_args():
     """Parse input arguments."""

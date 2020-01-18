@@ -1,20 +1,18 @@
 import sys, os, argparse
 
-import numpy as np
 import cv2
-import matplotlib.pyplot as plt
 
 import torch
-import torch.nn as nn
 from torch.autograd import Variable
-from torch.utils.data import DataLoader
 from torchvision import transforms
 import torch.backends.cudnn as cudnn
 import torchvision
 import torch.nn.functional as F
 from PIL import Image
 
-import datasets, hopenet, utils
+import hopenet
+from Utils import utils
+
 
 def parse_args():
 
@@ -168,7 +166,7 @@ if __name__ == '__main__':
             # Print new frame with cube and axis
             txt_out.write(str(frame_num) + ' %f %f %f\n' % (yaw_predicted, pitch_predicted, roll_predicted))
             # utils.plot_pose_cube(frame, yaw_predicted, pitch_predicted, roll_predicted, (x_min + x_max) / 2, (y_min + y_max) / 2, size = bbox_width)
-            utils.draw_axis(frame, yaw_predicted, pitch_predicted, roll_predicted, tdx = (x_min + x_max) / 2, tdy= (y_min + y_max) / 2, size = bbox_height/2)
+            utils.draw_axis(frame, yaw_predicted, pitch_predicted, roll_predicted, tdx =(x_min + x_max) / 2, tdy=(y_min + y_max) / 2, size =bbox_height / 2)
             # Plot expanded bounding box
             # cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0,255,0), 1)
 

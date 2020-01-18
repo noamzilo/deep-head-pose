@@ -71,6 +71,7 @@ class Hopenet(nn.Module):
 
         return pre_yaw, pre_pitch, pre_roll
 
+
 class ResNet(nn.Module):
     # ResNet for regression of 3 Euler angles.
     def __init__(self, block, layers, num_classes=1000):
