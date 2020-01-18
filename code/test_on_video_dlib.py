@@ -74,7 +74,7 @@ if __name__ == '__main__':
 
     print('Loading data.')
 
-    transformations = transforms.Compose([transforms.Scale(224),
+    transformations = transforms.Compose([transforms.Resize(224),
     transforms.CenterCrop(224), transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
 
@@ -154,9 +154,9 @@ if __name__ == '__main__':
 
                 yaw, pitch, roll = model(img)
 
-                yaw_predicted = F.softmax(yaw)
-                pitch_predicted = F.softmax(pitch)
-                roll_predicted = F.softmax(roll)
+                yaw_predicted = F.softmax(yaw, dim=1)
+                pitch_predicted = F.softmax(pitch, dim=1)
+                roll_predicted = F.softmax(roll, dim=1)
                 # Get continuous predictions in degrees.
                 yaw_predicted = torch.sum(yaw_predicted.data[0] * idx_tensor) * 3 - 99
                 pitch_predicted = torch.sum(pitch_predicted.data[0] * idx_tensor) * 3 - 99
