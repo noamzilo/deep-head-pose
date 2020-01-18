@@ -11,13 +11,15 @@ import torchvision
 
 from original_code_augmented import hopenet, datasets
 from Utils import utils
+from Utils.create_filename_list import file_names_in_tree_root
 
 
 def parse_args():
 
     default_snapshot_path = r"C:\Noam\Code\vision_course\hopenet\models\hopenet_robust_alpha1.pkl"
     default_data_dir_path = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\300W-3D"
-    create_filename_list()
+    file_names_in_tree_root(default_data_dir_path)
+    default_file_name_list = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\rel_paths.txt"
 
 
     parser = argparse.ArgumentParser(description='Head pose estimation using the Hopenet network.')
@@ -26,7 +28,7 @@ def parse_args():
     parser.add_argument('--data_dir', dest='data_dir', help='Directory path for data.',
           default=default_data_dir_path, type=str)
     parser.add_argument('--filename_list', dest='filename_list', help='Path to text file containing relative paths for every example.',
-          default='', type=str)
+          default=default_file_name_list, type=str)
     parser.add_argument('--snapshot', dest='snapshot', help='Name of model snapshot.',
           default=default_snapshot_path, type=str)
     parser.add_argument('--batch_size', dest='batch_size', help='Batch size.',
