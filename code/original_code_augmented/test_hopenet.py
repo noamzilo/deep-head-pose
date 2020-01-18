@@ -9,7 +9,7 @@ from torchvision import transforms
 import torch.backends.cudnn as cudnn
 import torchvision
 
-import datasets, hopenet
+from original_code_augmented import hopenet, datasets
 from Utils import utils
 
 
@@ -41,14 +41,15 @@ if __name__ == '__main__':
     gpu = args.gpu_id
     snapshot_path = args.snapshot
 
-    model = hopenet.ResNet(torchvision.models.resnet.Bottleneck, [3, 4, 6, 3], 3)
+    # ResNet50 structure
+    model = hopenet.Hopenet(torchvision.models.resnet.Bottleneck, [3, 4, 6, 3], 66)
 
-    print 'Loading snapshot.'
+    print('Loading snapshot.')
     # Load snapshot
     saved_state_dict = torch.load(snapshot_path)
     model.load_state_dict(saved_state_dict)
 
-    print 'Loading data.'
+    print('Loading data.')
 
     transformations = transforms.Compose([transforms.Scale(224),
     transforms.CenterCrop(224), transforms.ToTensor(),
@@ -71,7 +72,7 @@ if __name__ == '__main__':
     elif args.dataset == 'AFW':
         pose_dataset = datasets.AFW(args.data_dir, args.filename_list, transformations)
     else:
-        print 'Error: not a valid dataset name'
+        print('Error: not a valid dataset name')
         sys.exit()
     test_loader = torch.utils.data.DataLoader(dataset=pose_dataset,
                                                batch_size=args.batch_size,
@@ -79,11 +80,14 @@ if __name__ == '__main__':
 
     model.cuda(gpu)
 
-    print 'Ready to test network.'
+    print('Ready to test network.')
 
     # Test the Model
     model.eval()  # Change model to 'eval' mode (BN uses moving mean/var).
     total = 0
+
+    idx_tensor = list(range(66))
+    idx_tensor = torch.FloatTensor(idx_tensor).cuda(gpu)
 
     yaw_error = .0
     pitch_error = .0
@@ -94,14 +98,26 @@ if __name__ == '__main__':
     for i, (images, labels, cont_labels, name) in enumerate(test_loader):
         images = Variable(images).cuda(gpu)
         total += cont_labels.size(0)
+
         label_yaw = cont_labels[:,0].float()
         label_pitch = cont_labels[:,1].float()
         label_roll = cont_labels[:,2].float()
 
-        angles = model(images)
-        yaw_predicted = angles[:,0].data.cpu()
-        pitch_predicted = angles[:,1].data.cpu()
-        roll_predicted = angles[:,2].data.cpu()
+        yaw, pitch, roll = model(images)
+
+        # Binned predictions
+        _, yaw_bpred = torch.max(yaw.data, 1)
+        _, pitch_bpred = torch.max(pitch.data, 1)
+        _, roll_bpred = torch.max(roll.data, 1)
+
+        # Continuous predictions
+        yaw_predicted = utils.softmax_temperature(yaw.data, 1)
+        pitch_predicted = utils.softmax_temperature(pitch.data, 1)
+        roll_predicted = utils.softmax_temperature(roll.data, 1)
+
+        yaw_predicted = torch.sum(yaw_predicted * idx_tensor, 1).cpu() * 3 - 99
+        pitch_predicted = torch.sum(pitch_predicted * idx_tensor, 1).cpu() * 3 - 99
+        roll_predicted = torch.sum(roll_predicted * idx_tensor, 1).cpu() * 3 - 99
 
         # Mean absolute error
         yaw_error += torch.sum(torch.abs(yaw_predicted - label_yaw))
@@ -117,11 +133,11 @@ if __name__ == '__main__':
                 cv2_img = cv2.imread(os.path.join(args.data_dir, name + '.jpg'))
             if args.batch_size == 1:
                 error_string = 'y %.2f, p %.2f, r %.2f' % (torch.sum(torch.abs(yaw_predicted - label_yaw)), torch.sum(torch.abs(pitch_predicted - label_pitch)), torch.sum(torch.abs(roll_predicted - label_roll)))
-                cv2.putText(cv2_img, error_string, (30, cv2_img.shape[0]- 30), fontFace=1, fontScale=1, color=(0,0,255), thickness=1)
+                cv2.putText(cv2_img, error_string, (30, cv2_img.shape[0]- 30), fontFace=1, fontScale=1, color=(0,0,255), thickness=2)
             # utils.plot_pose_cube(cv2_img, yaw_predicted[0], pitch_predicted[0], roll_predicted[0], size=100)
             utils.draw_axis(cv2_img, yaw_predicted[0], pitch_predicted[0], roll_predicted[0], tdx = 200, tdy= 200, size=100)
             cv2.imwrite(os.path.join('output/images', name + '.jpg'), cv2_img)
 
-    print('Test error in degrees of the model on the ' + str(total) +
-    ' test images. Yaw: %.4f, Pitch: %.4f, Roll: %.4f' % (yaw_error / total,
-    pitch_error / total, roll_error / total))
+    print(('Test error in degrees of the model on the ' + str(total) +
+        ' test images. Yaw: %.4f, Pitch: %.4f, Roll: %.4f' % (yaw_error / total,
+        pitch_error / total, roll_error / total)))

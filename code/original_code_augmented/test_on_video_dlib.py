@@ -10,10 +10,11 @@ import torchvision
 import torch.nn.functional as F
 from PIL import Image
 
-import hopenet
+from original_code_augmented import hopenet
 from Utils import utils
 
 import dlib
+from Utils.validate_gpu import validate
 
 
 def parse_args():
@@ -21,7 +22,7 @@ def parse_args():
     default_dlib_model_path = r"C:\Noam\Code\vision_course\hopenet\models\mmod_human_face_detector.dat"
     default_snapshot_path = r"C:\Noam\Code\vision_course\hopenet\models\hopenet_robust_alpha1.pkl"
     default_video_path = r"C:\Noam\Code\vision_course\hopenet\videos\video_resize.mp4"
-    default_n_frames = 60
+    default_n_frames = 24
     default_fps = 24.  # was 30.
 
     parser = argparse.ArgumentParser(description='Head pose estimation using the Hopenet network.')
@@ -44,6 +45,7 @@ def parse_args():
 
 if __name__ == '__main__':
     def main():
+        validate()
         args = parse_args()
 
         cudnn.enabled = True
@@ -51,7 +53,7 @@ if __name__ == '__main__':
         batch_size = 1
         gpu = args.gpu_id
         snapshot_path = args.snapshot
-        out_dir = 'output/video'
+        out_dir = '../output/video'
         video_path = args.video_path
 
         if not os.path.exists(out_dir):
@@ -96,7 +98,7 @@ if __name__ == '__main__':
 
         # Define the codec and create VideoWriter object
         fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-        out = cv2.VideoWriter('output/video/output-%s.avi' % args.output_string, fourcc, args.fps, (width, height))
+        out = cv2.VideoWriter('../output/video/output-%s.avi' % args.output_string, fourcc, args.fps, (width, height))
 
         # # Old cv2
         # width = int(video.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH))   # float
@@ -106,72 +108,73 @@ if __name__ == '__main__':
         # fourcc = cv2.cv.CV_FOURCC(*'MJPG')
         # out = cv2.VideoWriter('output/video/output-%s.avi' % args.output_string, fourcc, 30.0, (width, height))
 
-        txt_out = open('output/video/output-%s.txt' % args.output_string, 'w')
+        out_file_path = '../output/video/output-%s.txt' % args.output_string
+        assert os.path.isfile(out_file_path)
+        with open(out_file_path, 'w') as txt_out:
+            frame_num = 1
 
-        frame_num = 1
+            while frame_num <= args.n_frames:
+                print(frame_num)
 
-        while frame_num <= args.n_frames:
-            print(frame_num)
+                ret,frame = video.read()
+                if ret == False:
+                    break
 
-            ret,frame = video.read()
-            if ret == False:
-                break
+                cv2_frame = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
 
-            cv2_frame = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
+                # Dlib detect
+                dets = cnn_face_detector(cv2_frame, 1)
 
-            # Dlib detect
-            dets = cnn_face_detector(cv2_frame, 1)
+                for idx, det in enumerate(dets):
+                    # Get x_min, y_min, x_max, y_max, conf
+                    x_min = det.rect.left()
+                    y_min = det.rect.top()
+                    x_max = det.rect.right()
+                    y_max = det.rect.bottom()
+                    conf = det.confidence
 
-            for idx, det in enumerate(dets):
-                # Get x_min, y_min, x_max, y_max, conf
-                x_min = det.rect.left()
-                y_min = det.rect.top()
-                x_max = det.rect.right()
-                y_max = det.rect.bottom()
-                conf = det.confidence
+                    if conf > 1.0:
+                        bbox_width = abs(x_max - x_min)
+                        bbox_height = abs(y_max - y_min)
+                        x_min -= 2 * bbox_width // 4
+                        x_max += 2 * bbox_width // 4
+                        y_min -= 3 * bbox_height // 4
+                        y_max += bbox_height // 4
+                        x_min = max(x_min, 0)
+                        y_min = max(y_min, 0)
+                        x_max = min(frame.shape[1], x_max)
+                        y_max = min(frame.shape[0], y_max)
+                        # Crop image
+                        img = cv2_frame[y_min:y_max, x_min:x_max]
+                        img = Image.fromarray(img)
 
-                if conf > 1.0:
-                    bbox_width = abs(x_max - x_min)
-                    bbox_height = abs(y_max - y_min)
-                    x_min -= 2 * bbox_width // 4
-                    x_max += 2 * bbox_width // 4
-                    y_min -= 3 * bbox_height // 4
-                    y_max += bbox_height // 4
-                    x_min = max(x_min, 0)
-                    y_min = max(y_min, 0)
-                    x_max = min(frame.shape[1], x_max)
-                    y_max = min(frame.shape[0], y_max)
-                    # Crop image
-                    img = cv2_frame[y_min:y_max, x_min:x_max]
-                    img = Image.fromarray(img)
+                        # Transform
+                        img = transformations(img)
+                        img_shape = img.size()
+                        img = img.view(1, img_shape[0], img_shape[1], img_shape[2])
+                        img = Variable(img).cuda(gpu)
 
-                    # Transform
-                    img = transformations(img)
-                    img_shape = img.size()
-                    img = img.view(1, img_shape[0], img_shape[1], img_shape[2])
-                    img = Variable(img).cuda(gpu)
+                        yaw, pitch, roll = model(img)
 
-                    yaw, pitch, roll = model(img)
+                        yaw_predicted = F.softmax(yaw, dim=1)
+                        pitch_predicted = F.softmax(pitch, dim=1)
+                        roll_predicted = F.softmax(roll, dim=1)
+                        # Get continuous predictions in degrees.
+                        yaw_predicted = torch.sum(yaw_predicted.data[0] * idx_tensor) * 3 - 99
+                        pitch_predicted = torch.sum(pitch_predicted.data[0] * idx_tensor) * 3 - 99
+                        roll_predicted = torch.sum(roll_predicted.data[0] * idx_tensor) * 3 - 99
 
-                    yaw_predicted = F.softmax(yaw, dim=1)
-                    pitch_predicted = F.softmax(pitch, dim=1)
-                    roll_predicted = F.softmax(roll, dim=1)
-                    # Get continuous predictions in degrees.
-                    yaw_predicted = torch.sum(yaw_predicted.data[0] * idx_tensor) * 3 - 99
-                    pitch_predicted = torch.sum(pitch_predicted.data[0] * idx_tensor) * 3 - 99
-                    roll_predicted = torch.sum(roll_predicted.data[0] * idx_tensor) * 3 - 99
+                        # Print new frame with cube and axis
+                        txt_out.write(str(frame_num) + ' %f %f %f\n' % (yaw_predicted, pitch_predicted, roll_predicted))
+                        # utils.plot_pose_cube(frame, yaw_predicted, pitch_predicted, roll_predicted, (x_min + x_max) / 2, (y_min + y_max) / 2, size = bbox_width)
+                        utils.draw_axis(frame, yaw_predicted, pitch_predicted, roll_predicted, tdx =(x_min + x_max) / 2, tdy=(y_min + y_max) / 2, size =bbox_height / 2)
+                        # Plot expanded bounding box
+                        # cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0,255,0), 1)
 
-                    # Print new frame with cube and axis
-                    txt_out.write(str(frame_num) + ' %f %f %f\n' % (yaw_predicted, pitch_predicted, roll_predicted))
-                    # utils.plot_pose_cube(frame, yaw_predicted, pitch_predicted, roll_predicted, (x_min + x_max) / 2, (y_min + y_max) / 2, size = bbox_width)
-                    utils.draw_axis(frame, yaw_predicted, pitch_predicted, roll_predicted, tdx =(x_min + x_max) / 2, tdy=(y_min + y_max) / 2, size =bbox_height / 2)
-                    # Plot expanded bounding box
-                    # cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0,255,0), 1)
+                out.write(frame)
+                frame_num += 1
 
-            out.write(frame)
-            frame_num += 1
-
-        out.release()
-        video.release()
+            out.release()
+            video.release()
 
     main()

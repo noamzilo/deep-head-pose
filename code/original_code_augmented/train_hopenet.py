@@ -1,8 +1,4 @@
-import sys, os, argparse, time
-
-import numpy as np
-import cv2
-import matplotlib.pyplot as plt
+import sys, os, argparse
 
 import torch
 import torch.nn as nn
@@ -11,14 +7,9 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 import torchvision
 import torch.backends.cudnn as cudnn
-import torch.nn.functional as F
 
-import datasets, hopenet
+from original_code_augmented import hopenet, datasets
 import torch.utils.model_zoo as model_zoo
-
-model_urls = {
-    'alexnet': 'https://download.pytorch.org/models/alexnet-owt-4df8aa71.pth',
-}
 
 def parse_args():
     """Parse input arguments."""
@@ -31,6 +22,7 @@ def parse_args():
           default=16, type=int)
     parser.add_argument('--lr', dest='lr', help='Base learning rate.',
           default=0.001, type=float)
+    parser.add_argument('--dataset', dest='dataset', help='Dataset type.', default='Pose_300W_LP', type=str)
     parser.add_argument('--data_dir', dest='data_dir', help='Directory path for data.',
           default='', type=str)
     parser.add_argument('--filename_list', dest='filename_list', help='Path to text file containing relative paths for every example.',
@@ -38,13 +30,15 @@ def parse_args():
     parser.add_argument('--output_string', dest='output_string', help='String appended to output snapshots.', default = '', type=str)
     parser.add_argument('--alpha', dest='alpha', help='Regression loss coefficient.',
           default=0.001, type=float)
-    parser.add_argument('--dataset', dest='dataset', help='Dataset type.', default='Pose_300W_LP', type=str)
+    parser.add_argument('--snapshot', dest='snapshot', help='Path of model snapshot.',
+          default='', type=str)
+
     args = parser.parse_args()
     return args
 
 def get_ignored_params(model):
     # Generator function that yields ignored params.
-    b = [model.features[0], model.features[1], model.features[2]]
+    b = [model.conv1, model.bn1, model.fc_finetune]
     for i in range(len(b)):
         for module_name, module in b[i].named_modules():
             if 'bn' in module_name:
@@ -54,11 +48,7 @@ def get_ignored_params(model):
 
 def get_non_ignored_params(model):
     # Generator function that yields params that will be optimized.
-    b = []
-    for idx in xrange(3, len(model.features)):
-        b.append(model.features[idx])
-    for layer in model.classifier:
-        b.append(layer)
+    b = [model.layer1, model.layer2, model.layer3, model.layer4]
     for i in range(len(b)):
         for module_name, module in b[i].named_modules():
             if 'bn' in module_name:
@@ -67,6 +57,7 @@ def get_non_ignored_params(model):
                 yield param
 
 def get_fc_params(model):
+    # Generator function that yields fc layer params.
     b = [model.fc_yaw, model.fc_pitch, model.fc_roll]
     for i in range(len(b)):
         for module_name, module in b[i].named_modules():
@@ -91,8 +82,14 @@ if __name__ == '__main__':
     if not os.path.exists('output/snapshots'):
         os.makedirs('output/snapshots')
 
-    model = hopenet.AlexNet(66)
-    load_filtered_state_dict(model, model_zoo.load_url(model_urls['alexnet']))
+    # ResNet50 structure
+    model = hopenet.Hopenet(torchvision.models.resnet.Bottleneck, [3, 4, 6, 3], 66)
+
+    if args.snapshot == '':
+        load_filtered_state_dict(model, model_zoo.load_url('https://download.pytorch.org/models/resnet50-19c8e357.pth'))
+    else:
+        saved_state_dict = torch.load(args.snapshot)
+        model.load_state_dict(saved_state_dict)
 
     print 'Loading data.'
 
@@ -104,6 +101,8 @@ if __name__ == '__main__':
         pose_dataset = datasets.Pose_300W_LP(args.data_dir, args.filename_list, transformations)
     elif args.dataset == 'Pose_300W_LP_random_ds':
         pose_dataset = datasets.Pose_300W_LP_random_ds(args.data_dir, args.filename_list, transformations)
+    elif args.dataset == 'Synhead':
+        pose_dataset = datasets.Synhead(args.data_dir, args.filename_list, transformations)
     elif args.dataset == 'AFLW2000':
         pose_dataset = datasets.AFLW2000(args.data_dir, args.filename_list, transformations)
     elif args.dataset == 'BIWI':
@@ -117,18 +116,19 @@ if __name__ == '__main__':
     else:
         print 'Error: not a valid dataset name'
         sys.exit()
+
     train_loader = torch.utils.data.DataLoader(dataset=pose_dataset,
                                                batch_size=batch_size,
                                                shuffle=True,
                                                num_workers=2)
 
     model.cuda(gpu)
-    softmax = nn.Softmax().cuda(gpu)
     criterion = nn.CrossEntropyLoss().cuda(gpu)
     reg_criterion = nn.MSELoss().cuda(gpu)
     # Regression loss coefficient
     alpha = args.alpha
 
+    softmax = nn.Softmax().cuda(gpu)
     idx_tensor = [idx for idx in xrange(66)]
     idx_tensor = Variable(torch.FloatTensor(idx_tensor)).cuda(gpu)
 
@@ -153,17 +153,17 @@ if __name__ == '__main__':
             label_roll_cont = Variable(cont_labels[:,2]).cuda(gpu)
 
             # Forward pass
-            pre_yaw, pre_pitch, pre_roll = model(images)
+            yaw, pitch, roll = model(images)
 
             # Cross entropy loss
-            loss_yaw = criterion(pre_yaw, label_yaw)
-            loss_pitch = criterion(pre_pitch, label_pitch)
-            loss_roll = criterion(pre_roll, label_roll)
+            loss_yaw = criterion(yaw, label_yaw)
+            loss_pitch = criterion(pitch, label_pitch)
+            loss_roll = criterion(roll, label_roll)
 
             # MSE loss
-            yaw_predicted = softmax(pre_yaw)
-            pitch_predicted = softmax(pre_pitch)
-            roll_predicted = softmax(pre_roll)
+            yaw_predicted = softmax(yaw)
+            pitch_predicted = softmax(pitch)
+            roll_predicted = softmax(roll)
 
             yaw_predicted = torch.sum(yaw_predicted * idx_tensor, 1) * 3 - 99
             pitch_predicted = torch.sum(pitch_predicted * idx_tensor, 1) * 3 - 99
@@ -180,6 +180,7 @@ if __name__ == '__main__':
 
             loss_seq = [loss_yaw, loss_pitch, loss_roll]
             grad_seq = [torch.ones(1).cuda(gpu) for _ in range(len(loss_seq))]
+            optimizer.zero_grad()
             torch.autograd.backward(loss_seq, grad_seq)
             optimizer.step()
 

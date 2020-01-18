@@ -10,12 +10,12 @@ import torchvision
 import torch.nn.functional as F
 from PIL import Image
 
-import hopenet
+from original_code_augmented import hopenet
 from Utils import utils
 
 
 def parse_args():
-    """Parse input arguments."""
+
     parser = argparse.ArgumentParser(description='Head pose estimation using the Hopenet network.')
     parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
             default=0, type=int)
@@ -37,7 +37,7 @@ if __name__ == '__main__':
     batch_size = 1
     gpu = args.gpu_id
     snapshot_path = args.snapshot
-    out_dir = 'output/video'
+    out_dir = '../output/video'
     video_path = args.video_path
 
     if not os.path.exists(out_dir):
@@ -117,7 +117,7 @@ if __name__ == '__main__':
                 video.release()
                 txt_out.close()
                 sys.exit(0)
-            out.write(frame)
+            # out.write(frame)
             frame_num += 1
 
         # Start processing frame with bounding box
@@ -127,49 +127,48 @@ if __name__ == '__main__':
         cv2_frame = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
 
         while True:
-            x_min, y_min, x_max, y_max, conf = int(float(line[1])), int(float(line[2])), int(float(line[3])), int(float(line[4])), float(line[5])
+            x_min, y_min, x_max, y_max = int(float(line[1])), int(float(line[2])), int(float(line[3])), int(float(line[4]))
 
-            if conf > 0.98:
-                bbox_width = abs(x_max - x_min)
-                bbox_height = abs(y_max - y_min)
-                # x_min -= 3 * bbox_width / 4
-                # x_max += 3 * bbox_width / 4
-                # y_min -= 3 * bbox_height / 4
-                # y_max += bbox_height / 4
-                x_min -= 50
-                x_max += 50
-                y_min -= 50
-                y_max += 30
-                x_min = max(x_min, 0)
-                y_min = max(y_min, 0)
-                x_max = min(frame.shape[1], x_max)
-                y_max = min(frame.shape[0], y_max)
-                # Crop image
-                img = cv2_frame[y_min:y_max,x_min:x_max]
-                img = Image.fromarray(img)
+            bbox_width = abs(x_max - x_min)
+            bbox_height = abs(y_max - y_min)
+            # x_min -= 3 * bbox_width / 4
+            # x_max += 3 * bbox_width / 4
+            # y_min -= 3 * bbox_height / 4
+            # y_max += bbox_height / 4
+            x_min -= 50
+            x_max += 50
+            y_min -= 50
+            y_max += 30
+            x_min = max(x_min, 0)
+            y_min = max(y_min, 0)
+            x_max = min(frame.shape[1], x_max)
+            y_max = min(frame.shape[0], y_max)
+            # Crop face loosely
+            img = cv2_frame[y_min:y_max,x_min:x_max]
+            img = Image.fromarray(img)
 
-                # Transform
-                img = transformations(img)
-                img_shape = img.size()
-                img = img.view(1, img_shape[0], img_shape[1], img_shape[2])
-                img = Variable(img).cuda(gpu)
+            # Transform
+            img = transformations(img)
+            img_shape = img.size()
+            img = img.view(1, img_shape[0], img_shape[1], img_shape[2])
+            img = Variable(img).cuda(gpu)
 
-                yaw, pitch, roll = model(img)
+            yaw, pitch, roll = model(img)
 
-                yaw_predicted = F.softmax(yaw)
-                pitch_predicted = F.softmax(pitch)
-                roll_predicted = F.softmax(roll)
-                # Get continuous predictions in degrees.
-                yaw_predicted = torch.sum(yaw_predicted.data[0] * idx_tensor) * 3 - 99
-                pitch_predicted = torch.sum(pitch_predicted.data[0] * idx_tensor) * 3 - 99
-                roll_predicted = torch.sum(roll_predicted.data[0] * idx_tensor) * 3 - 99
+            yaw_predicted = F.softmax(yaw)
+            pitch_predicted = F.softmax(pitch)
+            roll_predicted = F.softmax(roll)
+            # Get continuous predictions in degrees.
+            yaw_predicted = torch.sum(yaw_predicted.data[0] * idx_tensor) * 3 - 99
+            pitch_predicted = torch.sum(pitch_predicted.data[0] * idx_tensor) * 3 - 99
+            roll_predicted = torch.sum(roll_predicted.data[0] * idx_tensor) * 3 - 99
 
-                # Print new frame with cube and axis
-                txt_out.write(str(frame_num) + ' %f %f %f\n' % (yaw_predicted, pitch_predicted, roll_predicted))
-                # utils.plot_pose_cube(frame, yaw_predicted, pitch_predicted, roll_predicted, (x_min + x_max) / 2, (y_min + y_max) / 2, size = bbox_width)
-                utils.draw_axis(frame, yaw_predicted, pitch_predicted, roll_predicted, tdx =(x_min + x_max) / 2, tdy=(y_min + y_max) / 2, size =bbox_height / 2)
-                # Plot expanded bounding box
-                # cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0,255,0), 1)
+            # Print new frame with cube and axis
+            txt_out.write(str(frame_num) + ' %f %f %f\n' % (yaw_predicted, pitch_predicted, roll_predicted))
+            # utils.plot_pose_cube(frame, yaw_predicted, pitch_predicted, roll_predicted, (x_min + x_max) / 2, (y_min + y_max) / 2, size = bbox_width)
+            utils.draw_axis(frame, yaw_predicted, pitch_predicted, roll_predicted, tdx =(x_min + x_max) / 2, tdy=(y_min + y_max) / 2, size =bbox_height / 2)
+            # Plot expanded bounding box
+            # cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0,255,0), 1)
 
             # Peek next frame detection
             next_frame_num = int(bbox_line_list[idx+1].strip('\n').split(' ')[0])

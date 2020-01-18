@@ -7,8 +7,9 @@ from torch.autograd import Variable
 from torch.utils.data import DataLoader
 from torchvision import transforms
 import torch.backends.cudnn as cudnn
+import torchvision
 
-import datasets, hopenet
+from original_code_augmented import hopenet, datasets
 from Utils import utils
 
 
@@ -40,7 +41,7 @@ if __name__ == '__main__':
     gpu = args.gpu_id
     snapshot_path = args.snapshot
 
-    model = hopenet.AlexNet(66)
+    model = hopenet.ResNet(torchvision.models.resnet.Bottleneck, [3, 4, 6, 3], 3)
 
     print 'Loading snapshot.'
     # Load snapshot
@@ -84,9 +85,6 @@ if __name__ == '__main__':
     model.eval()  # Change model to 'eval' mode (BN uses moving mean/var).
     total = 0
 
-    idx_tensor = [idx for idx in xrange(66)]
-    idx_tensor = torch.FloatTensor(idx_tensor).cuda(gpu)
-
     yaw_error = .0
     pitch_error = .0
     roll_error = .0
@@ -100,21 +98,10 @@ if __name__ == '__main__':
         label_pitch = cont_labels[:,1].float()
         label_roll = cont_labels[:,2].float()
 
-        yaw, pitch, roll = model(images)
-
-        # Binned predictions
-        _, yaw_bpred = torch.max(yaw.data, 1)
-        _, pitch_bpred = torch.max(pitch.data, 1)
-        _, roll_bpred = torch.max(roll.data, 1)
-
-        # Continuous predictions
-        yaw_predicted = utils.softmax_temperature(yaw.data, 1)
-        pitch_predicted = utils.softmax_temperature(pitch.data, 1)
-        roll_predicted = utils.softmax_temperature(roll.data, 1)
-
-        yaw_predicted = torch.sum(yaw_predicted * idx_tensor, 1).cpu() * 3 - 99
-        pitch_predicted = torch.sum(pitch_predicted * idx_tensor, 1).cpu() * 3 - 99
-        roll_predicted = torch.sum(roll_predicted * idx_tensor, 1).cpu() * 3 - 99
+        angles = model(images)
+        yaw_predicted = angles[:,0].data.cpu()
+        pitch_predicted = angles[:,1].data.cpu()
+        roll_predicted = angles[:,2].data.cpu()
 
         # Mean absolute error
         yaw_error += torch.sum(torch.abs(yaw_predicted - label_yaw))

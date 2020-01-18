@@ -1,8 +1,4 @@
-import sys, os, argparse, time
-
-import numpy as np
-import cv2
-import matplotlib.pyplot as plt
+import sys, os, argparse
 
 import torch
 import torch.nn as nn
@@ -11,9 +7,8 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 import torchvision
 import torch.backends.cudnn as cudnn
-import torch.nn.functional as F
 
-import datasets, hopenet
+from original_code_augmented import hopenet, datasets
 import torch.utils.model_zoo as model_zoo
 
 def parse_args():
