@@ -14,21 +14,27 @@ from Utils import utils
 
 
 def parse_args():
-    """Parse input arguments."""
+
+    default_snapshot_path = r"C:\Noam\Code\vision_course\hopenet\models\hopenet_robust_alpha1.pkl"
+    default_data_dir_path = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\300W-3D"
+    create_filename_list()
+
+
     parser = argparse.ArgumentParser(description='Head pose estimation using the Hopenet network.')
     parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
             default=0, type=int)
     parser.add_argument('--data_dir', dest='data_dir', help='Directory path for data.',
-          default='', type=str)
+          default=default_data_dir_path, type=str)
     parser.add_argument('--filename_list', dest='filename_list', help='Path to text file containing relative paths for every example.',
           default='', type=str)
     parser.add_argument('--snapshot', dest='snapshot', help='Name of model snapshot.',
-          default='', type=str)
+          default=default_snapshot_path, type=str)
     parser.add_argument('--batch_size', dest='batch_size', help='Batch size.',
           default=1, type=int)
     parser.add_argument('--save_viz', dest='save_viz', help='Save images with pose cube.',
-          default=False, type=bool)
-    parser.add_argument('--dataset', dest='dataset', help='Dataset type.', default='AFLW2000', type=str)
+          default=True, type=bool)
+    # parser.add_argument('--dataset', dest='dataset', help='Dataset type.', default='AFLW2000', type=str)
+    parser.add_argument('--dataset', dest='dataset', help='Dataset type.', default='Pose_300W_LP', type=str)
 
     args = parser.parse_args()
 
