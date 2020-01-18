@@ -76,6 +76,7 @@ class Synhead(Dataset):
     def __len__(self):
         return self.length
 
+
 class Pose_300W_LP(Dataset):
     # Head pose from 300W-LP dataset
     def __init__(self, data_dir, filename_path, transform, img_ext='.jpg', annot_ext='.mat', image_mode='RGB'):
