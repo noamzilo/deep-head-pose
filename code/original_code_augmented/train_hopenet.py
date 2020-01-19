@@ -10,9 +10,15 @@ import torch.backends.cudnn as cudnn
 
 from original_code_augmented import hopenet, datasets
 import torch.utils.model_zoo as model_zoo
+from Utils.create_filename_list import file_names_in_tree_root
+
 
 def parse_args():
-    """Parse input arguments."""
+    default_snapshot_path = r"C:\Noam\Code\vision_course\hopenet\models\hopenet_robust_alpha1.pkl"
+    default_data_dir_path = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\300W-3D"
+    file_names_in_tree_root(default_data_dir_path)
+    default_file_name_list = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\rel_paths.txt"
+
     parser = argparse.ArgumentParser(description='Head pose estimation using the Hopenet network.')
     parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
             default=0, type=int)
@@ -24,9 +30,9 @@ def parse_args():
           default=0.001, type=float)
     parser.add_argument('--dataset', dest='dataset', help='Dataset type.', default='Pose_300W_LP', type=str)
     parser.add_argument('--data_dir', dest='data_dir', help='Directory path for data.',
-          default='', type=str)
+          default=default_data_dir_path, type=str)
     parser.add_argument('--filename_list', dest='filename_list', help='Path to text file containing relative paths for every example.',
-          default='', type=str)
+          default=default_file_name_list, type=str)
     parser.add_argument('--output_string', dest='output_string', help='String appended to output snapshots.', default = '', type=str)
     parser.add_argument('--alpha', dest='alpha', help='Regression loss coefficient.',
           default=0.001, type=float)
@@ -179,7 +185,7 @@ if __name__ == '__main__':
             loss_roll += alpha * loss_reg_roll
 
             loss_seq = [loss_yaw, loss_pitch, loss_roll]
-            grad_seq = [torch.ones(1).cuda(gpu) for _ in range(len(loss_seq))]
+            grad_seq = [torch.tensor(1.0, dtype=torch.float).cuda(gpu) for _ in range(len(loss_seq))]
             optimizer.zero_grad()
             torch.autograd.backward(loss_seq, grad_seq)
             optimizer.step()
