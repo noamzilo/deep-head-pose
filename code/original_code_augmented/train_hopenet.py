@@ -19,15 +19,18 @@ def parse_args():
     file_names_in_tree_root(default_data_dir_path)
     default_file_name_list = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\rel_paths.txt"
 
+    default_batch_size = 32  # was 16
+    default_learning_rate = 0.002  # was 0.001
+
     parser = argparse.ArgumentParser(description='Head pose estimation using the Hopenet network.')
     parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
             default=0, type=int)
     parser.add_argument('--num_epochs', dest='num_epochs', help='Maximum number of training epochs.',
           default=5, type=int)
     parser.add_argument('--batch_size', dest='batch_size', help='Batch size.',
-          default=16, type=int)
+          default=default_batch_size, type=int)
     parser.add_argument('--lr', dest='lr', help='Base learning rate.',
-          default=0.001, type=float)
+          default=default_learning_rate, type=float)
     parser.add_argument('--dataset', dest='dataset', help='Dataset type.', default='Pose_300W_LP', type=str)
     parser.add_argument('--data_dir', dest='data_dir', help='Directory path for data.',
           default=default_data_dir_path, type=str)

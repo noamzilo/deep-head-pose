@@ -17,6 +17,7 @@ from Utils.create_filename_list import file_names_in_tree_root
 def parse_args():
 
     default_snapshot_path = r"C:\Noam\Code\vision_course\hopenet\models\hopenet_robust_alpha1.pkl"
+    # default_snapshot_path = r"C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\original_code_augmented\output\snapshots\_epoch_5.pkl"
     default_data_dir_path = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\300W-3D"
     file_names_in_tree_root(default_data_dir_path)
     default_file_name_list = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\rel_paths.txt"
