@@ -4,11 +4,11 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-np.set_printoptions(formatter={'float_kind': lambda x: "%.4f" % x})
-
 
 class FaceModel:
     def __init__(self, path, name, getMask):
+        np.set_printoptions(formatter={'float_kind': lambda x: "%.4f" % x})
+
         self.load_model(path, name)
         self.eyemask = None
         if getMask:
