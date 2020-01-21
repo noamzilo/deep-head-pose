@@ -4,16 +4,16 @@ import dlib
 from original_code_augmented.test_on_validation.validation_requirements import ThreeD_Model
 import cv2
 from original_code_augmented.test_on_validation.validation_requirements.ValidationSetLoader import ValidationSetLoader
+from Utils.yaml_utils.ConfigParser import ConfigParser
 
 
 class OriginalValidator(object):
-    def __init__(self):
-        self._model_full_path = \
-            r'C:\\Noam\Code\vision_course\face_specific_augm/model_lecturer/model3D_aug_-00_00_01.mat'
-        self._ground_truth_file_path = r"C:\Noam\Code\vision_course\face_pose_estimation\images\valid_set\validation_set.csv"
-        self._validation_images_folder_path = r"C:\Noam\Code\vision_course\face_pose_estimation\images\valid_set\images"
-        self._predictor_path = r"C:\Noam\Code\vision_course\shape_predictor\shape_predictor_68_face_landmarks.dat"
-        # self._read_ground_truth_validation()
+    def __init__(self, config_path):
+        self._paths = ConfigParser(config_path).parse()
+        self._model_full_path = self._paths.model_full_path
+        self._ground_truth_file_path = self._paths.ground_truth_file_path
+        self._validation_images_folder_path = self._paths.validation_images_folder_path
+        self._predictor_path = self._paths.predictor_path
 
         self._validation_set_loader = ValidationSetLoader(self._ground_truth_file_path,
                                                           self._validation_images_folder_path)
@@ -89,7 +89,8 @@ class OriginalValidator(object):
 
 if __name__ == "__main__":
     def main():
-        original_validator = OriginalValidator()
+        config_path = r"C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\original_code_augmented\config\paths.yaml"
+        original_validator = OriginalValidator(config_path)
         original_validator.validate()
 
     main()
