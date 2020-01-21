@@ -15,11 +15,17 @@ class OriginalValidator(object):
         self._validation_images_folder_path = self._paths.validation_images_folder_path
         self._predictor_path = self._paths.predictor_path
 
+        self._load_validation_set()
+
+    def _load_validation_set(self):
         self._validation_set_loader = ValidationSetLoader(self._ground_truth_file_path,
                                                           self._validation_images_folder_path)
         self._validation_set_loader.load_validation_set()
+        self._ground_truth = self._validation_set_loader.ground_truth
+        self._validation_image_paths = self._validation_set_loader.validation_image_paths
+        self._validation_points = self._validation_set_loader.validation_points
 
-    def _preload(self):
+    def _preload_3d_model(self):
         model3d = ThreeD_Model.FaceModel(self._model_full_path, 'model3D', True)
         return model3d
 
@@ -33,7 +39,7 @@ class OriginalValidator(object):
         return coords
 
     def compare_result_to_ground(self, results_list):
-        validation_df = self._validation_set_loader.ground_truth
+        validation_df = self._ground_truth
         ground_rx_ry_rz = np.array(validation_df[['rx', 'ry', 'rz']])
         results_rx_ry_rz = [r[0:3] for r in results_list]
         results_rx_ry_rz = np.array(results_rx_ry_rz)
@@ -51,9 +57,9 @@ class OriginalValidator(object):
 
         results_list = []
 
-        model3d = self._preload()
+        model3d = self._preload_3d_model()
 
-        for i, image_path in enumerate(self._validation_set_loader.validation_image_paths):
+        for i, image_path in enumerate(self._validation_image_paths):
             image = cv2.imread(image_path)
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -75,7 +81,7 @@ class OriginalValidator(object):
             #     results_list.append(np.append(rotation_vec, translation_vec))
 
             success, rotation_vec, translation_vec = cv2.solvePnP(model3d.model_TD,
-                                                                  self._validation_set_loader.validation_points[i],
+                                                                  self._validation_points[i],
                                                                   model3d.out_A,
                                                                   None,
                                                                   None,
