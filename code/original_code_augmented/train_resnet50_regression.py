@@ -11,6 +11,7 @@ import torch.backends.cudnn as cudnn
 from original_code_augmented import hopenet, datasets
 import torch.utils.model_zoo as model_zoo
 
+
 def parse_args():
     """Parse input arguments."""
     parser = argparse.ArgumentParser(description='Head pose estimation using the Hopenet network.')
