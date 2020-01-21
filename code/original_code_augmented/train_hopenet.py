@@ -19,8 +19,9 @@ def parse_args():
     file_names_in_tree_root(default_data_dir_path)
     default_file_name_list = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\rel_paths.txt"
 
-    default_batch_size = 32  # was 16
-    default_learning_rate = 0.002  # was 0.001
+    speedup_factor = 2 ** 0
+    default_batch_size = 16 * speedup_factor  # was 16
+    default_learning_rate = 0.001 * speedup_factor  # was 0.001
 
     parser = argparse.ArgumentParser(description='Head pose estimation using the Hopenet network.')
     parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
