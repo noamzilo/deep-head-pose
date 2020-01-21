@@ -12,6 +12,7 @@ class OriginalValidation(object):
             r'C:\\Noam\Code\vision_course\face_specific_augm/model_lecturer/model3D_aug_-00_00_01.mat'
         self._ground_truth_file_path = r"C:\Noam\Code\vision_course\face_pose_estimation\images\valid_set\validation_set.csv"
         self._validation_images_folder_path = r"C:\Noam\Code\vision_course\face_pose_estimation\images\valid_set\images"
+        self._predictor_path = r"C:\Noam\Code\vision_course\shape_predictor\shape_predictor_68_face_landmarks.dat"
         self._read_ground_truth_validation()
 
     def _preload(self):
@@ -74,7 +75,7 @@ class OriginalValidation(object):
     def validate(self):
         # initialize dlib's face detector and create facial landmark predictor
         detector = dlib.get_frontal_face_detector()
-        predictor_path = r"C:\Noam\Code\vision_course\shape_predictor\shape_predictor_68_face_landmarks.dat"
+        predictor_path = self._predictor_path
         assert os.path.isfile(predictor_path)
         predictor = dlib.shape_predictor(predictor_path)
 
