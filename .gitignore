@@ -5,3 +5,4 @@ output/*
 *.jpg
 *.png
 /code/output/video/*
+/code/original_code_augmented/output/*
