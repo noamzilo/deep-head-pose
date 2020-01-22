@@ -1,11 +1,9 @@
 import numpy as np
-import os
-import dlib
-from original_code_augmented.test_on_validation.validation_requirements import ThreeD_Model
+from test_on_validation.validation_requirements import ThreeD_Model
 import cv2
-from original_code_augmented.test_on_validation.validation_requirements.ValidationSetLoader import ValidationSetLoader
+from test_on_validation.validation_requirements.ValidationSetLoader import ValidationSetLoader
 from Utils.yaml_utils.ConfigParser import ConfigParser
-from original_code_augmented.test_on_validation.Validator import Validator
+from test_on_validation.Validator import Validator
 
 
 class PnpEstimatorManualTags(object):
@@ -48,7 +46,7 @@ class PnpEstimatorManualTags(object):
 
 if __name__ == "__main__":
     def main():
-        config_path = r"C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\original_code_augmented\config\paths.yaml"
+        config_path = r"C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\config\paths.yaml"
         pnp_estimator = PnpEstimatorManualTags(config_path)
         original_validator = Validator(config_path, pnp_estimator)
         original_validator.validate()

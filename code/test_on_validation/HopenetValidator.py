@@ -1,9 +1,8 @@
 import numpy as np
 import os
 import dlib
-from original_code_augmented.test_on_validation.validation_requirements import ThreeD_Model
 import cv2
-from original_code_augmented.test_on_validation.validation_requirements.ValidationSetLoader import ValidationSetLoader
+from test_on_validation import ValidationSetLoader
 from Utils.yaml_utils.ConfigParser import ConfigParser
 
 
