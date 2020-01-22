@@ -84,8 +84,8 @@ if __name__ == '__main__':
         print('Error: not a valid dataset name')
         sys.exit()
     test_loader = torch.utils.data.DataLoader(dataset=pose_dataset,
-                                               batch_size=args.batch_size,
-                                               num_workers=2)
+                                              batch_size=args.batch_size,
+                                              num_workers=2)
 
     model.cuda(gpu)
 

@@ -144,9 +144,10 @@ class HopenetEstimator(object):
 
 if __name__ == "__main__":
     def main():
-        config_path = r"C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\config\paths.yaml"
-        pnp_estimator = HopenetEstimator(config_path)
-        original_validator = Validator(config_path, pnp_estimator)
+        hopenet_config_path = r"C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\config\hopenet_config.yaml"
+        hopenet_estimator = HopenetEstimator(hopenet_config_path)
+        validation_config_path = r"C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\config\paths.yaml"
+        original_validator = Validator(validation_config_path, hopenet_estimator)
         original_validator.validate()
 
     main()
