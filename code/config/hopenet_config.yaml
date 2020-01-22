@@ -1,0 +1,5 @@
+snapshot_path: C:\Noam\Code\vision_course\hopenet\models\hopenet_robust_alpha1.pkl
+data_dir_path: C:\Noam\Code\vision_course\downloads\datasets\300W-LP\300W-3D
+file_name_list: C:\Noam\Code\vision_course\downloads\datasets\300W-LP\rel_paths.txt
+gpu_id: 0
+dataset: Pose_300W_LP
