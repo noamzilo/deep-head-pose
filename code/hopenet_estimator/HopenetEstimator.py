@@ -17,24 +17,54 @@ from torchvision import transforms
 import torch.backends.cudnn as cudnn
 import torchvision
 
-from original_code_augmented.hopenet import Hopenet
-from original_code_augmented import datasets
 from Utils import utils
 from Utils.create_filename_list import file_names_in_tree_root
+from original_code_augmented import hopenet
+from original_code_augmented import datasets
 
 
 class HopenetEstimator(object):
     def __init__(self, hopenet_config):
         self._hopenet_config = ConfigParser(hopenet_config).parse()
+        self._parse_args()
+
+    def _parse_args(self):
+
+        default_snapshot_path = r"C:\Noam\Code\vision_course\hopenet\models\hopenet_robust_alpha1.pkl"
+        # default_snapshot_path = r"C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\original_code_augmented\output\snapshots\_epoch_5.pkl"
+        default_data_dir_path = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\300W-3D"
+        file_names_in_tree_root(default_data_dir_path)
+        default_file_name_list = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\rel_paths.txt"
+
+        parser = argparse.ArgumentParser(description='Head pose estimation using the Hopenet network.')
+        parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
+                            default=0, type=int)
+        parser.add_argument('--data_dir', dest='data_dir', help='Directory path for data.',
+                            default=default_data_dir_path, type=str)
+        parser.add_argument('--filename_list', dest='filename_list',
+                            help='Path to text file containing relative paths for every example.',
+                            default=default_file_name_list, type=str)
+        parser.add_argument('--snapshot', dest='snapshot', help='Name of model snapshot.',
+                            default=default_snapshot_path, type=str)
+        parser.add_argument('--batch_size', dest='batch_size', help='Batch size.',
+                            default=1, type=int)
+        parser.add_argument('--save_viz', dest='save_viz', help='Save images with pose cube.',
+                            default=True, type=bool)
+        # parser.add_argument('--dataset', dest='dataset', help='Dataset type.', default='AFLW2000', type=str)
+        parser.add_argument('--dataset', dest='dataset', help='Dataset type.', default='Pose_300W_LP', type=str)
+
+        self._args = parser.parse_args()
 
     def calculate_results(self):
-        args = self._hopenet_config
+        args = self._args
+        results = []
+
         cudnn.enabled = True
         gpu = args.gpu_id
-        snapshot_path = args.snapshot_path
+        snapshot_path = args.snapshot
 
         # ResNet50 structure
-        model = Hopenet(torchvision.models.resnet.Bottleneck, [3, 4, 6, 3], 66)
+        model = hopenet.Hopenet(torchvision.models.resnet.Bottleneck, [3, 4, 6, 3], 66)
 
         print('Loading snapshot.')
         # Load snapshot
@@ -48,24 +78,22 @@ class HopenetEstimator(object):
                                               transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                                                    std=[0.229, 0.224, 0.225])])
 
-        dataset = args.dataset
-
-        if dataset == 'Pose_300W_LP':
-            pose_dataset = datasets.Pose_300W_LP(args.data_dir_path, args.file_name_list, transformations)
-        elif dataset == 'Pose_300W_LP_random_ds':
-            pose_dataset = datasets.Pose_300W_LP_random_ds(args.data_dir_path, args.file_name_list, transformations)
-        elif dataset == 'AFLW2000':
-            pose_dataset = datasets.AFLW2000(args.data_dir_path, args.file_name_list, transformations)
-        elif dataset == 'AFLW2000_ds':
-            pose_dataset = datasets.AFLW2000_ds(args.data_dir_path, args.file_name_list, transformations)
-        elif dataset == 'BIWI':
-            pose_dataset = datasets.BIWI(args.data_dir_path, args.file_name_list, transformations)
-        elif dataset == 'AFLW':
-            pose_dataset = datasets.AFLW(args.data_dir_path, args.file_name_list, transformations)
-        elif dataset == 'AFLW_aug':
-            pose_dataset = datasets.AFLW_aug(args.data_dir_path, args.file_name_list, transformations)
-        elif dataset == 'AFW':
-            pose_dataset = datasets.AFW(args.data_dir_path, args.file_name_list, transformations)
+        if args.dataset == 'Pose_300W_LP':
+            pose_dataset = datasets.Pose_300W_LP(args.data_dir, args.filename_list, transformations)
+        elif args.dataset == 'Pose_300W_LP_random_ds':
+            pose_dataset = datasets.Pose_300W_LP_random_ds(args.data_dir, args.filename_list, transformations)
+        elif args.dataset == 'AFLW2000':
+            pose_dataset = datasets.AFLW2000(args.data_dir, args.filename_list, transformations)
+        elif args.dataset == 'AFLW2000_ds':
+            pose_dataset = datasets.AFLW2000_ds(args.data_dir, args.filename_list, transformations)
+        elif args.dataset == 'BIWI':
+            pose_dataset = datasets.BIWI(args.data_dir, args.filename_list, transformations)
+        elif args.dataset == 'AFLW':
+            pose_dataset = datasets.AFLW(args.data_dir, args.filename_list, transformations)
+        elif args.dataset == 'AFLW_aug':
+            pose_dataset = datasets.AFLW_aug(args.data_dir, args.filename_list, transformations)
+        elif args.dataset == 'AFW':
+            pose_dataset = datasets.AFW(args.data_dir, args.filename_list, transformations)
         else:
             print('Error: not a valid dataset name')
             sys.exit()
@@ -114,6 +142,10 @@ class HopenetEstimator(object):
             pitch_predicted = torch.sum(pitch_predicted * idx_tensor, 1).cpu() * 3 - 99
             roll_predicted = torch.sum(roll_predicted * idx_tensor, 1).cpu() * 3 - 99
 
+            rotation_vec = np.array([roll_predicted, pitch_predicted, yaw_predicted])
+            translation_vec = np.array([0, 0, 0])
+            results.append(np.append(rotation_vec, translation_vec))
+
             # Mean absolute error
             yaw_error += torch.sum(torch.abs(yaw_predicted - label_yaw))
             pitch_error += torch.sum(torch.abs(pitch_predicted - label_pitch))
@@ -140,6 +172,7 @@ class HopenetEstimator(object):
         print(('Test error in degrees of the model on the ' + str(total) +
                ' test images. Yaw: %.4f, Pitch: %.4f, Roll: %.4f' % (yaw_error / total,
                                                                      pitch_error / total, roll_error / total)))
+        return results
 
 
 if __name__ == "__main__":

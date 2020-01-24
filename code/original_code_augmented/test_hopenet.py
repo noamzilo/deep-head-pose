@@ -16,39 +16,12 @@ from Utils.create_filename_list import file_names_in_tree_root
 from Utils.yaml_utils.ConfigParser import ConfigParser
 
 
-def parse_args():
-
-    default_snapshot_path = r"C:\Noam\Code\vision_course\hopenet\models\hopenet_robust_alpha1.pkl"
-    # default_snapshot_path = r"C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\original_code_augmented\output\snapshots\_epoch_5.pkl"
-    default_data_dir_path = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\300W-3D"
-    file_names_in_tree_root(default_data_dir_path)
-    default_file_name_list = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\rel_paths.txt"
-
-
-    parser = argparse.ArgumentParser(description='Head pose estimation using the Hopenet network.')
-    parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
-            default=0, type=int)
-    parser.add_argument('--data_dir', dest='data_dir', help='Directory path for data.',
-          default=default_data_dir_path, type=str)
-    parser.add_argument('--filename_list', dest='filename_list', help='Path to text file containing relative paths for every example.',
-          default=default_file_name_list, type=str)
-    parser.add_argument('--snapshot', dest='snapshot', help='Name of model snapshot.',
-          default=default_snapshot_path, type=str)
-    parser.add_argument('--batch_size', dest='batch_size', help='Batch size.',
-          default=1, type=int)
-    parser.add_argument('--save_viz', dest='save_viz', help='Save images with pose cube.',
-          default=True, type=bool)
-    # parser.add_argument('--dataset', dest='dataset', help='Dataset type.', default='AFLW2000', type=str)
-    parser.add_argument('--dataset', dest='dataset', help='Dataset type.', default='Pose_300W_LP', type=str)
-
-    args = parser.parse_args()
-
-    return args
-
 if __name__ == '__main__':
-    # args = parse_args()
     hopenet_config_path = r"C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\config\hopenet_config.yaml"
     args = ConfigParser(hopenet_config_path).parse()
+    create_paths_file_at = args.create_paths_file_at
+    data_dir_path = args.test_data_dir_path
+    file_name_list = file_names_in_tree_root(data_dir_path, create_paths_file_at)
 
     cudnn.enabled = True
     gpu = args.gpu_id
@@ -69,21 +42,21 @@ if __name__ == '__main__':
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
 
     if args.dataset == 'Pose_300W_LP':
-        pose_dataset = datasets.Pose_300W_LP(args.data_dir_path, args.file_name_list, transformations)
+        pose_dataset = datasets.Pose_300W_LP(data_dir_path, args.file_name_list, transformations)
     elif args.dataset == 'Pose_300W_LP_random_ds':
-        pose_dataset = datasets.Pose_300W_LP_random_ds(args.data_dir_path, args.file_name_list, transformations)
+        pose_dataset = datasets.Pose_300W_LP_random_ds(data_dir_path, args.file_name_list, transformations)
     elif args.dataset == 'AFLW2000':
-        pose_dataset = datasets.AFLW2000(args.data_dir_path, args.file_name_list, transformations)
+        pose_dataset = datasets.AFLW2000(data_dir_path, args.file_name_list, transformations)
     elif args.dataset == 'AFLW2000_ds':
-        pose_dataset = datasets.AFLW2000_ds(args.data_dir_path, args.file_name_list, transformations)
+        pose_dataset = datasets.AFLW2000_ds(data_dir_path, args.file_name_list, transformations)
     elif args.dataset == 'BIWI':
-        pose_dataset = datasets.BIWI(args.data_dir_path, args.file_name_list, transformations)
+        pose_dataset = datasets.BIWI(data_dir_path, args.file_name_list, transformations)
     elif args.dataset == 'AFLW':
-        pose_dataset = datasets.AFLW(args.data_dir_path, args.file_name_list, transformations)
+        pose_dataset = datasets.AFLW(data_dir_path, args.file_name_list, transformations)
     elif args.dataset == 'AFLW_aug':
-        pose_dataset = datasets.AFLW_aug(args.data_dir_path, args.file_name_list, transformations)
+        pose_dataset = datasets.AFLW_aug(data_dir_path, args.file_name_list, transformations)
     elif args.dataset == 'AFW':
-        pose_dataset = datasets.AFW(args.data_dir_path, args.file_name_list, transformations)
+        pose_dataset = datasets.AFW(data_dir_path, args.file_name_list, transformations)
     else:
         print('Error: not a valid dataset name')
         sys.exit()
@@ -141,9 +114,9 @@ if __name__ == '__main__':
         if args.save_viz:
             name = name[0]
             if args.dataset == 'BIWI':
-                cv2_img = cv2.imread(os.path.join(args.data_dir_path, name + '_rgb.png'))
+                cv2_img = cv2.imread(os.path.join(data_dir_path, name + '_rgb.png'))
             else:
-                cv2_img = cv2.imread(os.path.join(args.data_dir_path, name + '.jpg'))
+                cv2_img = cv2.imread(os.path.join(data_dir_path, name + '.jpg'))
             if args.batch_size_test == 1:
                 error_string = 'y %.2f, p %.2f, r %.2f' % (torch.sum(torch.abs(yaw_predicted - label_yaw)), torch.sum(torch.abs(pitch_predicted - label_pitch)), torch.sum(torch.abs(roll_predicted - label_roll)))
                 cv2.putText(cv2_img, error_string, (30, cv2_img.shape[0]- 30), fontFace=1, fontScale=1, color=(0,0,255), thickness=2)

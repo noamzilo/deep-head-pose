@@ -4,7 +4,7 @@ import glob
 from os.path import relpath
 
 
-def file_names_in_tree_root(treeroot):
+def file_names_in_tree_root(treeroot, create_file_at):
     paths = []
     for filename in glob.iglob(treeroot + '**/**', recursive=True):
         if os.path.isfile(os.path.join(treeroot, filename)):
@@ -12,8 +12,8 @@ def file_names_in_tree_root(treeroot):
 
     paths = sorted(paths)
 
-    create_paths_file_at = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\rel_paths.txt"
-    with open(create_paths_file_at, 'w') as f:
+
+    with open(create_file_at, 'w') as f:
         for path in paths:
             f.write(f"{path}\n")
 

@@ -1,8 +1,10 @@
 gpu_id: 0
-data_dir_path: C:\Noam\Code\vision_course\downloads\datasets\300W-LP\300W-3D
+train_data_dir_path: C:\Noam\Code\vision_course\downloads\datasets\300W-LP\300W-3D
+test_data_dir_path: C:\Noam\Code\vision_course\downloads\datasets\300W-LP\300W-3D
 file_name_list: C:\Noam\Code\vision_course\downloads\datasets\300W-LP\rel_paths.txt
 snapshot_path: C:\Noam\Code\vision_course\hopenet\models\hopenet_robust_alpha1.pkl
 batch_size_test: 1
 batch_size_train: 16
 save_viz: True
 dataset: Pose_300W_LP
+create_paths_file_at: C:\Noam\Code\vision_course\downloads\datasets\300W-LP\rel_paths.txt
