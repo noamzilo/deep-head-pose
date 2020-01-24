@@ -12,12 +12,11 @@ def file_names_in_tree_root(treeroot, create_file_at):
 
     paths = sorted(paths)
 
-
     with open(create_file_at, 'w') as f:
         for path in paths:
             f.write(f"{path}\n")
 
-    return paths
+    return create_file_at, paths
 
 
 if __name__ == "__main__":

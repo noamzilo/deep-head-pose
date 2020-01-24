@@ -21,7 +21,7 @@ if __name__ == '__main__':
     args = ConfigParser(hopenet_config_path).parse()
     create_paths_file_at = args.create_paths_file_at
     data_dir_path = args.test_data_dir_path
-    file_name_list = file_names_in_tree_root(data_dir_path, create_paths_file_at)
+    file_name_list, _ = file_names_in_tree_root(data_dir_path, create_paths_file_at)
 
     cudnn.enabled = True
     gpu = args.gpu_id
@@ -42,21 +42,21 @@ if __name__ == '__main__':
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
 
     if args.dataset == 'Pose_300W_LP':
-        pose_dataset = datasets.Pose_300W_LP(data_dir_path, args.file_name_list, transformations)
+        pose_dataset = datasets.Pose_300W_LP(data_dir_path, file_name_list, transformations)
     elif args.dataset == 'Pose_300W_LP_random_ds':
-        pose_dataset = datasets.Pose_300W_LP_random_ds(data_dir_path, args.file_name_list, transformations)
+        pose_dataset = datasets.Pose_300W_LP_random_ds(data_dir_path, file_name_list, transformations)
     elif args.dataset == 'AFLW2000':
-        pose_dataset = datasets.AFLW2000(data_dir_path, args.file_name_list, transformations)
+        pose_dataset = datasets.AFLW2000(data_dir_path, file_name_list, transformations)
     elif args.dataset == 'AFLW2000_ds':
-        pose_dataset = datasets.AFLW2000_ds(data_dir_path, args.file_name_list, transformations)
+        pose_dataset = datasets.AFLW2000_ds(data_dir_path, file_name_list, transformations)
     elif args.dataset == 'BIWI':
-        pose_dataset = datasets.BIWI(data_dir_path, args.file_name_list, transformations)
+        pose_dataset = datasets.BIWI(data_dir_path, file_name_list, transformations)
     elif args.dataset == 'AFLW':
-        pose_dataset = datasets.AFLW(data_dir_path, args.file_name_list, transformations)
+        pose_dataset = datasets.AFLW(data_dir_path, file_name_list, transformations)
     elif args.dataset == 'AFLW_aug':
-        pose_dataset = datasets.AFLW_aug(data_dir_path, args.file_name_list, transformations)
+        pose_dataset = datasets.AFLW_aug(data_dir_path, file_name_list, transformations)
     elif args.dataset == 'AFW':
-        pose_dataset = datasets.AFW(data_dir_path, args.file_name_list, transformations)
+        pose_dataset = datasets.AFW(data_dir_path, file_name_list, transformations)
     else:
         print('Error: not a valid dataset name')
         sys.exit()
