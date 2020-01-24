@@ -1,8 +1,8 @@
 import os
 
 
-def create_image_paths_file(validation_image_paths, create_file_at_dir, file_name):
-    paths = validation_image_paths
+def create_image_paths_file(image_paths, create_file_at_dir, file_name):
+    paths = image_paths
     paths = sorted(paths)
 
     create_file_at = os.path.join(create_file_at_dir, file_name)

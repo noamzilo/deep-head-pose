@@ -167,19 +167,21 @@ if __name__ == "__main__":
                                                     validation_config.validation_images_folder_path)
         validation_set_loader.load_validation_set()
 
+        # create paths file for validation
         create_image_paths_file(  # TODO this belongs in ValidationSetLoader
             validation_set_loader.validation_image_paths,
             validation_config.create_rel_paths_file_at,
             validation_config.rel_paths_file_name)
 
-        file_names_in_tree_root(hopenet_config.test_data_dir_path,
-                                hopenet_config.test_data_dir_path,
-                                validation_config.rel_paths_file_name)
+        # create paths file for 300W-LP
+        path_300w, _ = file_names_in_tree_root(hopenet_config.test_data_dir_path,
+                                               hopenet_config.test_data_dir_path,
+                                               validation_config.rel_paths_file_name)
 
         hopenet_estimator = HopenetEstimator(hopenet_config,
                                              validation_config,
                                              input_images_folder=hopenet_config.test_data_dir_path,
-                                             input_images_rel_paths_file_name=validation_config.rel_paths_file_name)
+                                             input_images_rel_paths_file_name=path_300w)
         validator = Validator(validation_config, hopenet_estimator, validation_set_loader)
         validator.validate()
 
