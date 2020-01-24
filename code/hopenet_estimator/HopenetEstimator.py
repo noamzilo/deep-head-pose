@@ -21,17 +21,23 @@ from Utils import utils
 from Utils.create_filename_list import file_names_in_tree_root
 from original_code_augmented import hopenet
 from original_code_augmented import datasets
+from validation_adapters.create_validation_rel_paths_file import create_image_paths_file
 
 
 class HopenetEstimator(object):
-    def __init__(self, hopenet_config):
-        self._hopenet_config = ConfigParser(hopenet_config).parse()
+    def __init__(self, hopenet_config, validation_config, input_images_folder, input_images_rel_paths_file_name):
+        self._hopenet_config = hopenet_config
+        self._validation_config = validation_config
+        self._input_images_folder = input_images_folder
+        self._input_images_rel_paths_file_name = input_images_rel_paths_file_name
 
     def calculate_results(self):
         args = self._hopenet_config
-        create_paths_file_at = args.create_paths_file_at
-        data_dir_path = args.test_data_dir_path
-        file_name_list, _ = file_names_in_tree_root(data_dir_path, create_paths_file_at)
+        # data_dir_path = args.test_data_dir_path
+        data_dir_path = self._input_images_folder
+
+        file_name_list = os.path.join(self._input_images_folder, self._input_images_rel_paths_file_name)
+        # file_name_list, _ = file_names_in_tree_root(data_dir_path, create_paths_file_at)
 
         results = []
 
@@ -153,9 +159,28 @@ class HopenetEstimator(object):
 if __name__ == "__main__":
     def main():
         hopenet_config_path = r"C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\config\hopenet_config.yaml"
-        hopenet_estimator = HopenetEstimator(hopenet_config_path)
         validation_config_path = r"C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\config\paths.yaml"
-        original_validator = Validator(validation_config_path, hopenet_estimator)
-        original_validator.validate()
+        hopenet_config = ConfigParser(hopenet_config_path).parse()
+        validation_config = ConfigParser(validation_config_path).parse()
+
+        validation_set_loader = ValidationSetLoader(validation_config.ground_truth_file_path,
+                                                    validation_config.validation_images_folder_path)
+        validation_set_loader.load_validation_set()
+
+        create_image_paths_file(  # TODO this belongs in ValidationSetLoader
+            validation_set_loader.validation_image_paths,
+            validation_config.create_rel_paths_file_at,
+            validation_config.rel_paths_file_name)
+
+        file_names_in_tree_root(hopenet_config.test_data_dir_path,
+                                hopenet_config.test_data_dir_path,
+                                validation_config.rel_paths_file_name)
+
+        hopenet_estimator = HopenetEstimator(hopenet_config,
+                                             validation_config,
+                                             input_images_folder=hopenet_config.test_data_dir_path,
+                                             input_images_rel_paths_file_name=validation_config.rel_paths_file_name)
+        validator = Validator(validation_config, hopenet_estimator, validation_set_loader)
+        validator.validate()
 
     main()

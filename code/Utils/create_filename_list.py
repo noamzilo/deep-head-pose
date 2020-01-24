@@ -4,7 +4,7 @@ import glob
 from os.path import relpath
 
 
-def file_names_in_tree_root(treeroot, create_file_at):
+def file_names_in_tree_root(treeroot, create_file_dir, file_name):
     paths = []
     for filename in glob.iglob(treeroot + '**/**', recursive=True):
         if os.path.isfile(os.path.join(treeroot, filename)):
@@ -12,11 +12,15 @@ def file_names_in_tree_root(treeroot, create_file_at):
 
     paths = sorted(paths)
 
-    with open(create_file_at, 'w') as f:
+    file_path = os.path.join(create_file_dir, file_name)
+    if os.path.isfile(file_path):
+        os.remove(file_path)
+
+    with open(file_path, 'w') as f:
         for path in paths:
             f.write(f"{path}\n")
 
-    return create_file_at, paths
+    return file_path, paths
 
 
 if __name__ == "__main__":
