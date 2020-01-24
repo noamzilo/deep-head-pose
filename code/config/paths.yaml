@@ -2,3 +2,5 @@ model_full_path: C:\Noam\Code\vision_course\face_specific_augm/model_lecturer/mo
 ground_truth_file_path: C:\Noam\Code\vision_course\face_pose_estimation\images\valid_set\validation_set.csv
 validation_images_folder_path: C:\Noam\Code\vision_course\face_pose_estimation\images\valid_set\images
 predictor_path: C:\Noam\Code\vision_course\shape_predictor\shape_predictor_68_face_landmarks.dat
+create_rel_paths_file_at: C:\Noam\Code\vision_course\downloads\datasets\validation\valid_set\images
+rel_paths_file_name: rel_paths.txt
