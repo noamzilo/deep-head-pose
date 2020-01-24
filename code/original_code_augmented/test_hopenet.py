@@ -9,9 +9,11 @@ from torchvision import transforms
 import torch.backends.cudnn as cudnn
 import torchvision
 
-from original_code_augmented import hopenet, datasets
+from original_code_augmented import hopenet
+from original_code_augmented import datasets
 from Utils import utils
 from Utils.create_filename_list import file_names_in_tree_root
+from Utils.yaml_utils.ConfigParser import ConfigParser
 
 
 def parse_args():
@@ -44,11 +46,13 @@ def parse_args():
     return args
 
 if __name__ == '__main__':
-    args = parse_args()
+    # args = parse_args()
+    hopenet_config_path = r"C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\config\hopenet_config.yaml"
+    args = ConfigParser(hopenet_config_path).parse()
 
     cudnn.enabled = True
     gpu = args.gpu_id
-    snapshot_path = args.snapshot
+    snapshot_path = args.snapshot_path
 
     # ResNet50 structure
     model = hopenet.Hopenet(torchvision.models.resnet.Bottleneck, [3, 4, 6, 3], 66)
@@ -65,26 +69,26 @@ if __name__ == '__main__':
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
 
     if args.dataset == 'Pose_300W_LP':
-        pose_dataset = datasets.Pose_300W_LP(args.data_dir, args.filename_list, transformations)
+        pose_dataset = datasets.Pose_300W_LP(args.data_dir_path, args.file_name_list, transformations)
     elif args.dataset == 'Pose_300W_LP_random_ds':
-        pose_dataset = datasets.Pose_300W_LP_random_ds(args.data_dir, args.filename_list, transformations)
+        pose_dataset = datasets.Pose_300W_LP_random_ds(args.data_dir_path, args.file_name_list, transformations)
     elif args.dataset == 'AFLW2000':
-        pose_dataset = datasets.AFLW2000(args.data_dir, args.filename_list, transformations)
+        pose_dataset = datasets.AFLW2000(args.data_dir_path, args.file_name_list, transformations)
     elif args.dataset == 'AFLW2000_ds':
-        pose_dataset = datasets.AFLW2000_ds(args.data_dir, args.filename_list, transformations)
+        pose_dataset = datasets.AFLW2000_ds(args.data_dir_path, args.file_name_list, transformations)
     elif args.dataset == 'BIWI':
-        pose_dataset = datasets.BIWI(args.data_dir, args.filename_list, transformations)
+        pose_dataset = datasets.BIWI(args.data_dir_path, args.file_name_list, transformations)
     elif args.dataset == 'AFLW':
-        pose_dataset = datasets.AFLW(args.data_dir, args.filename_list, transformations)
+        pose_dataset = datasets.AFLW(args.data_dir_path, args.file_name_list, transformations)
     elif args.dataset == 'AFLW_aug':
-        pose_dataset = datasets.AFLW_aug(args.data_dir, args.filename_list, transformations)
+        pose_dataset = datasets.AFLW_aug(args.data_dir_path, args.file_name_list, transformations)
     elif args.dataset == 'AFW':
-        pose_dataset = datasets.AFW(args.data_dir, args.filename_list, transformations)
+        pose_dataset = datasets.AFW(args.data_dir_path, args.file_name_list, transformations)
     else:
         print('Error: not a valid dataset name')
         sys.exit()
     test_loader = torch.utils.data.DataLoader(dataset=pose_dataset,
-                                              batch_size=args.batch_size,
+                                              batch_size=args.batch_size_test,
                                               num_workers=2)
 
     model.cuda(gpu)
@@ -137,10 +141,10 @@ if __name__ == '__main__':
         if args.save_viz:
             name = name[0]
             if args.dataset == 'BIWI':
-                cv2_img = cv2.imread(os.path.join(args.data_dir, name + '_rgb.png'))
+                cv2_img = cv2.imread(os.path.join(args.data_dir_path, name + '_rgb.png'))
             else:
-                cv2_img = cv2.imread(os.path.join(args.data_dir, name + '.jpg'))
-            if args.batch_size == 1:
+                cv2_img = cv2.imread(os.path.join(args.data_dir_path, name + '.jpg'))
+            if args.batch_size_test == 1:
                 error_string = 'y %.2f, p %.2f, r %.2f' % (torch.sum(torch.abs(yaw_predicted - label_yaw)), torch.sum(torch.abs(pitch_predicted - label_pitch)), torch.sum(torch.abs(roll_predicted - label_roll)))
                 cv2.putText(cv2_img, error_string, (30, cv2_img.shape[0]- 30), fontFace=1, fontScale=1, color=(0,0,255), thickness=2)
             # utils.plot_pose_cube(cv2_img, yaw_predicted[0], pitch_predicted[0], roll_predicted[0], size=100)
