@@ -5,6 +5,11 @@ from Utils.create_filename_list import file_names_in_tree_root
 from test_on_validation.Validator import Validator
 
 
+def _calculate_absolute_validation_image_paths(validation_config):
+    validation_set_loader = ValidationSetLoader(validation_config)
+    paths = validation_set_loader.validation_image_paths
+    return paths
+
 if __name__ == "__main__":
     def main():
         hopenet_config, validation_config = _parse_config()
@@ -12,9 +17,8 @@ if __name__ == "__main__":
         validation_set_loader = ValidationSetLoader(validation_config)
 
         hopenet_estimator = HopenetEstimatorImages(hopenet_config,
-                                             validation_config,
-                                             input_images_folder=validation_config.validation_images_folder_path,
-                                             input_images_rel_paths_file_name=validation_config.rel_paths_file_name)
+                                                   validation_config,
+                                                   _calculate_absolute_validation_image_paths(validation_config))
 
         validator = Validator(validation_config, hopenet_estimator, validation_set_loader)
         validator.validate()

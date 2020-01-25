@@ -8,3 +8,7 @@ batch_size_train: 16
 save_viz: True
 dataset: Pose_300W_LP
 create_paths_file_at: C:\Noam\Code\vision_course\downloads\datasets\300W-LP\rel_paths.txt
+output_string: output
+face_detector_path: C:\Noam\Code\vision_course\hopenet\models\mmod_human_face_detector.dat
+output_dir: C:\Noam\Code\vision_course\hopenet\deep-head-pose\output
+scale_percent: 100.0
