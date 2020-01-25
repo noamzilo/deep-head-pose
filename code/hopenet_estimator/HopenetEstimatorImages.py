@@ -25,6 +25,7 @@ from original_code_augmented import datasets
 import torch.nn.functional as F
 from PIL import Image
 import dlib
+from Utils.path_utils import path_leaf
 
 
 class HopenetEstimatorImages(object):
@@ -82,7 +83,7 @@ class HopenetEstimatorImages(object):
         for image_full_path in input_images_paths:
             print(f"frame #{frame_num}")
             frame_num += 1
-            
+
             frame = cv2.imread(image_full_path)
 
             width = int(frame.shape[1] * args.scale_percent // 100)
@@ -145,6 +146,10 @@ class HopenetEstimatorImages(object):
                                     tdy=(y_min + y_max) / 2, size=bbox_height / 2)
                     # Plot expanded bounding box
                     # cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0,255,0), 1)
+
+                    out_file_full_path = os.path.join(self._hopenet_config.output_dir, path_leaf(image_full_path))
+                    cv2.imwrite(filename=out_file_full_path, img=frame)
+                    hi=5
 
         return results
 
