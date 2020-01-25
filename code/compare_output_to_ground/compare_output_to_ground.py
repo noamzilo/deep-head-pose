@@ -19,7 +19,6 @@ class CompareOutputToGround(object):
         pd.testing.assert_frame_equal(self._ground_files_df[['file name']], self._results_files_df[['file name']])
         expected = self._ground_truth
         actual = self._results
-        # actual_copy = actual.copy()
 
         def convert(row):
             roll, pitch, yaw = row[0], row[1], row[2]
@@ -30,23 +29,28 @@ class CompareOutputToGround(object):
         for i, row in actual.iterrows():
             rotvec = convert(row)
             rx, ry, rz = rotvec
-            actual['rx'][i] = rx
+            actual['rx'][i] = rz
             actual['ry'][i] = ry
-            actual['rz'][i] = rz
+            actual['rz'][i] = rx
 
         # calculate angles between actual and expected
         diffs = []
         angles = []
         for (i, row_actual), (_, row_expected) in zip(actual.iterrows(), expected.iterrows()):
-            # a = R.from_euler('zxy', (row_actual[0], row_actual[1], row_actual[2]), degrees=True)
-            # e = R.from_rotvec('xyz', (row_expected[0], row_expected[1], row_expected[2]), degrees=True)
             a = R.from_rotvec(row_actual)
             e = R.from_rotvec(row_expected)
-            diff = a * e.inv()
-            diffs.append(diff.as_matrix())
-            angles = [np.rad2deg(np.arccos(np.trace((diff - 1) / 2))) for diff in diffs]
 
-        print(angles)
+            a_mat = a.as_matrix()
+            e_mat = e.as_matrix()
+
+            angle = np.arccos((np.trace(a_mat.T @ e_mat) - 1) / 2)
+            angles.append(angle)
+
+            # diff = a * e.inv()
+            # diffs.append(diff.as_matrix())
+            # angles = [np.rad2deg(np.arccos((np.trace(diff) - 1) / 2)) for diff in diffs]
+
+        print(np.max(angles))
         return np.array(angles)
 
     def _extract_rxyz_from_ground(self):
