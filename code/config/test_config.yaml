@@ -7,8 +7,11 @@ ground_truth_file_path: C:\Noam\Code\vision_course\face_pose_estimation\images\v
 #test_images_folder_path: C:\Noam\Code\vision_course\hopenet\input\small_test
 #create_rel_paths_file_at: C:\Noam\Code\vision_course\hopenet\input\small_test
 
-test_images_folder_path: C:\Noam\Code\vision_course\hopenet\input\validation\valid_set\images
-create_rel_paths_file_at: C:\Noam\Code\vision_course\hopenet\input\validation\valid_set\images
+#test_images_folder_path: C:\Noam\Code\vision_course\hopenet\input\validation\valid_set\images
+#create_rel_paths_file_at: C:\Noam\Code\vision_course\hopenet\input\validation\valid_set\images
+
+test_images_folder_path: C:\Noam\Code\vision_course\hopenet\input\validation2\images
+create_rel_paths_file_at: C:\Noam\Code\vision_course\hopenet\input\validation2
 
 predictor_path: C:\Noam\Code\vision_course\shape_predictor\shape_predictor_68_face_landmarks.dat
 

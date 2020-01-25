@@ -14,7 +14,7 @@ class ValidationSetLoader(object):
 
     def _load_validation_points(self):
         validation_points = []
-        for file_path in self._validation_pts_paths :
+        for file_path in self._validation_pts_paths:
             points = np.loadtxt(file_path, comments=("version:", "n_points:", "{", "}"))
             validation_points.append(points)
         self.validation_points = validation_points
@@ -42,4 +42,4 @@ class ValidationSetLoader(object):
         self._validation_pts_paths = [os.path.join(self._validation_images_folder_path, pts_file_name)
                                       for pts_file_name in self._validation_pts_filenames]
 
-        self._load_validation_points()
+        # self._load_validation_points()

@@ -97,7 +97,9 @@ class HopenetEstimatorImages(object):
             cv2_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
             # Dlib detect
+            # CAN DISABLE FACE DETECTION FOR SPEED
             detections = self._cnn_face_detector(cv2_frame, 1)
+            # detections = []
             detections = sorted(detections, key=lambda x: x.confidence)
             if len(detections) > 0:
                 detection = detections[0] # TODO if no detection, return the entire frame.
@@ -152,7 +154,6 @@ class HopenetEstimatorImages(object):
 
             out_file_full_path = os.path.join(self._hopenet_config.output_dir, path_leaf(image_full_path))
             cv2.imwrite(filename=out_file_full_path, img=frame)
-            hi=5
 
         return results
 
