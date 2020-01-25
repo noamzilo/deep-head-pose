@@ -7,21 +7,19 @@ from test_on_validation.Validator import Validator
 
 
 class PnpEstimatorManualTags(object):
-    def __init__(self, config_path):
-        self._paths = ConfigParser(config_path).parse()
-        self._model_full_path = self._paths.model_full_path
-        self._ground_truth_file_path = self._paths.ground_truth_file_path
-        self._validation_images_folder_path = self._paths.validation_images_folder_path
+    def __init__(self, validation_config):
+        self._validation_config = validation_config
+        self._model_full_path = self._validation_config.model_full_path
+        self._ground_truth_file_path = self._validation_config.ground_truth_file_path
+        self._validation_images_folder_path = self._validation_config.validation_images_folder_path
 
         self._load_validation_set()
 
     def _load_validation_set(self):
-        self._validation_set_loader = ValidationSetLoader(self._ground_truth_file_path,
-                                                          self._validation_images_folder_path)
-        self._validation_set_loader.load_validation_set()
-        self._ground_truth = self._validation_set_loader.ground_truth
-        self._validation_image_paths = self._validation_set_loader.validation_image_paths
-        self._validation_points = self._validation_set_loader.validation_points
+        self.validation_set_loader = ValidationSetLoader(self._validation_config)
+        self._ground_truth = self.validation_set_loader.ground_truth
+        self._validation_image_paths = self.validation_set_loader.validation_image_paths
+        self._validation_points = self.validation_set_loader.validation_points
 
     def _preload_3d_model(self):
         model3d = ThreeD_Model.FaceModel(self._model_full_path, 'model3D', True)
@@ -46,9 +44,10 @@ class PnpEstimatorManualTags(object):
 
 if __name__ == "__main__":
     def main():
-        config_path = r"C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\config\validation_config.yaml"
-        pnp_estimator = PnpEstimatorManualTags(config_path)
-        original_validator = Validator(config_path, pnp_estimator)
+        validation_config_path = r"C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\config\validation_config.yaml"
+        validation_config = ConfigParser(validation_config_path).parse()
+        pnp_estimator = PnpEstimatorManualTags(validation_config)
+        original_validator = Validator(validation_config, pnp_estimator, pnp_estimator.validation_set_loader)
         original_validator.validate()
 
     main()
