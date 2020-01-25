@@ -54,6 +54,8 @@ class Validator(object):
             print(f"comparing {i}, at {image_path}")
             np.testing.assert_almost_equal(ground_rx_ry_rz[i, :], np.array([x, y, z]))
 
+        print("GOT SAME RESULTS AS CLEANED VALIDATION USING PNP METHOD")
+
     def validate(self):
         # results_list = self._calculate_original_results()
         results_list = self._results_calculator.calculate_results()
