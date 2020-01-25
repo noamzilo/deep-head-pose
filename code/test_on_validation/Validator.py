@@ -9,7 +9,7 @@ class Validator(object):
     def __init__(self, validation_config, results_calculator, validation_set_loader):
         self._validation_config = validation_config
         self._model_full_path = self._validation_config.model_full_path
-        self._ground_truth_file_path = self._validation_config.ground_truth_file_path
+
         self._validation_images_folder_path = self._validation_config.validation_images_folder_path
         self._predictor_path = self._validation_config.predictor_path
 
