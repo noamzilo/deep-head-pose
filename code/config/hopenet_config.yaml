@@ -11,4 +11,4 @@ create_paths_file_at: C:\Noam\Code\vision_course\downloads\datasets\300W-LP\rel_
 output_string: output
 face_detector_path: C:\Noam\Code\vision_course\hopenet\models\mmod_human_face_detector.dat
 scale_percent: 100.0
-output_dir: C:\Noam\Code\vision_course\hopenet\deep-head-pose\output
+output_dir: C:\Noam\Code\vision_course\hopenet\output

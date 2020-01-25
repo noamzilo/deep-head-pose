@@ -96,60 +96,63 @@ class HopenetEstimatorImages(object):
             cv2_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
             # Dlib detect
-            dets = self._cnn_face_detector(cv2_frame, 1)
+            detections = self._cnn_face_detector(cv2_frame, 1)
+            detections = sorted(detections, key=lambda x: x.confidence)
+            if len(detections) > 0:
+                detection = detections[0] # TODO if no detection, return the entire frame.
+                x_min = detection.rect.left()
+                y_min = detection.rect.top()
+                x_max = detection.rect.right()
+                y_max = detection.rect.bottom()
+            else:  # we are certain there is one detection, and only one, we just didn't find it, so use everything
+                x_min = 0
+                y_min = 0
+                x_max = cv2_frame.shape[1] - 1  # width
+                y_max = cv2_frame[0] - 1  # height
 
-            for idx, det in enumerate(dets):
-                # Get x_min, y_min, x_max, y_max, conf
-                x_min = det.rect.left()
-                y_min = det.rect.top()
-                x_max = det.rect.right()
-                y_max = det.rect.bottom()
-                conf = det.confidence
+            bbox_width = abs(x_max - x_min)
+            bbox_height = abs(y_max - y_min)
+            x_min -= 2 * bbox_width // 4
+            x_max += 2 * bbox_width // 4
+            y_min -= 3 * bbox_height // 4
+            y_max += bbox_height // 4
+            x_min = max(x_min, 0)
+            y_min = max(y_min, 0)
+            x_max = min(frame.shape[1], x_max)
+            y_max = min(frame.shape[0], y_max)
+            # Crop image
+            img = cv2_frame[y_min:y_max, x_min:x_max]
+            img = Image.fromarray(img)
 
-                if conf > 1.0:
-                    bbox_width = abs(x_max - x_min)
-                    bbox_height = abs(y_max - y_min)
-                    x_min -= 2 * bbox_width // 4
-                    x_max += 2 * bbox_width // 4
-                    y_min -= 3 * bbox_height // 4
-                    y_max += bbox_height // 4
-                    x_min = max(x_min, 0)
-                    y_min = max(y_min, 0)
-                    x_max = min(frame.shape[1], x_max)
-                    y_max = min(frame.shape[0], y_max)
-                    # Crop image
-                    img = cv2_frame[y_min:y_max, x_min:x_max]
-                    img = Image.fromarray(img)
+            # Transform
+            img = self._transformations(img)
+            img_shape = img.size()
+            img = img.view(1, img_shape[0], img_shape[1], img_shape[2])
+            img = Variable(img).cuda(self._gpu_id)
 
-                    # Transform
-                    img = self._transformations(img)
-                    img_shape = img.size()
-                    img = img.view(1, img_shape[0], img_shape[1], img_shape[2])
-                    img = Variable(img).cuda(self._gpu_id)
+            yaw, pitch, roll = self._hopenet(img)
 
-                    yaw, pitch, roll = self._hopenet(img)
+            yaw_predicted = F.softmax(yaw, dim=1)
+            pitch_predicted = F.softmax(pitch, dim=1)
+            roll_predicted = F.softmax(roll, dim=1)
+            # Get continuous predictions in degrees.
+            idx_tensor = self._idx_tensor
+            yaw_predicted = torch.sum(yaw_predicted.data[0] * idx_tensor) * 3 - 99
+            pitch_predicted = torch.sum(pitch_predicted.data[0] * idx_tensor) * 3 - 99
+            roll_predicted = torch.sum(roll_predicted.data[0] * idx_tensor) * 3 - 99
 
-                    yaw_predicted = F.softmax(yaw, dim=1)
-                    pitch_predicted = F.softmax(pitch, dim=1)
-                    roll_predicted = F.softmax(roll, dim=1)
-                    # Get continuous predictions in degrees.
-                    idx_tensor = self._idx_tensor
-                    yaw_predicted = torch.sum(yaw_predicted.data[0] * idx_tensor) * 3 - 99
-                    pitch_predicted = torch.sum(pitch_predicted.data[0] * idx_tensor) * 3 - 99
-                    roll_predicted = torch.sum(roll_predicted.data[0] * idx_tensor) * 3 - 99
+            results.append(np.array([roll_predicted, pitch_predicted, yaw_predicted, 0., 0., 0.]))
 
-                    results.append(np.array([roll_predicted, pitch_predicted, yaw_predicted, 0., 0., 0.]))
+            results.append(np.array([roll_predicted, pitch_predicted, yaw_predicted]))
+            # utils.plot_pose_cube(frame, yaw_predicted, pitch_predicted, roll_predicted, (x_min + x_max) / 2, (y_min + y_max) / 2, size = bbox_width)
+            utils.draw_axis(frame, yaw_predicted, pitch_predicted, roll_predicted, tdx=(x_min + x_max) / 2,
+                            tdy=(y_min + y_max) / 2, size=bbox_height / 2)
+            # Plot expanded bounding box
+            # cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0,255,0), 1)
 
-                    results.append(np.array([roll_predicted, pitch_predicted, yaw_predicted]))
-                    # utils.plot_pose_cube(frame, yaw_predicted, pitch_predicted, roll_predicted, (x_min + x_max) / 2, (y_min + y_max) / 2, size = bbox_width)
-                    utils.draw_axis(frame, yaw_predicted, pitch_predicted, roll_predicted, tdx=(x_min + x_max) / 2,
-                                    tdy=(y_min + y_max) / 2, size=bbox_height / 2)
-                    # Plot expanded bounding box
-                    # cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0,255,0), 1)
-
-                    out_file_full_path = os.path.join(self._hopenet_config.output_dir, path_leaf(image_full_path))
-                    cv2.imwrite(filename=out_file_full_path, img=frame)
-                    hi=5
+            out_file_full_path = os.path.join(self._hopenet_config.output_dir, path_leaf(image_full_path))
+            cv2.imwrite(filename=out_file_full_path, img=frame)
+            hi=5
 
         return results
 
