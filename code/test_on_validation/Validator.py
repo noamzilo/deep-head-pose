@@ -43,12 +43,16 @@ class Validator(object):
     def compare_result_to_ground(self, results_list):
         validation_df = self._ground_truth
         ground_rx_ry_rz = np.array(validation_df[['rx', 'ry', 'rz']])
-        results_rx_ry_rz = [r[0:3] for r in results_list]
+        results_rx_ry_rz = [r[0:3] for _, r in results_list]
+        image_paths = [path for path, _ in results_list]
         results_rx_ry_rz = np.array(results_rx_ry_rz)
         pic_names = validation_df['file name'].values
 
-        np.testing.assert_almost_equal(ground_rx_ry_rz, results_rx_ry_rz)
+        # np.testing.assert_almost_equal(ground_rx_ry_rz, results_rx_ry_rz)
         # The above assert was supposed to work, but the validation tags seem incorrect, while the model seems fine.
+        for i, (image_path, (x, y, z)) in enumerate(zip(image_paths, results_rx_ry_rz)):
+            print(f"comparing {i}, at {image_path}")
+            np.testing.assert_almost_equal(ground_rx_ry_rz[i, :], np.array([x, y, z]))
 
     def validate(self):
         # results_list = self._calculate_original_results()

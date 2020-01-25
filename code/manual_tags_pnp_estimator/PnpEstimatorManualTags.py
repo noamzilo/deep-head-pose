@@ -38,7 +38,7 @@ class PnpEstimatorManualTags(object):
                                                                   None,
                                                                   False)
 
-            results_list.append(np.append(rotation_vec, translation_vec))
+            results_list.append((image_path, np.append(rotation_vec, translation_vec)))
         return results_list
 
 
