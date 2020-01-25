@@ -9,9 +9,7 @@ if __name__ == "__main__":
     def main():
         hopenet_config, validation_config = _parse_config()
 
-        validation_set_loader = ValidationSetLoader(validation_config,
-                                                    validation_config.ground_truth_file_path,
-                                                    validation_config.validation_images_folder_path)
+        validation_set_loader = ValidationSetLoader(validation_config)
 
         hopenet_estimator = HopenetEstimatorImages(hopenet_config,
                                              validation_config,
@@ -24,7 +22,7 @@ if __name__ == "__main__":
 
     def _parse_config():
         hopenet_config_path = r"C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\config\hopenet_config.yaml"
-        validation_config_path = r"C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\config\paths.yaml"
+        validation_config_path = r"C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\config\validation_config.yaml"
         hopenet_config = ConfigParser(hopenet_config_path).parse()
         validation_config = ConfigParser(validation_config_path).parse()
         return hopenet_config, validation_config

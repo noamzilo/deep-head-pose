@@ -83,7 +83,7 @@ class HopenetValidator(object):
 
 if __name__ == "__main__":
     def main():
-        config_path = r"C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\original_code_augmented\config\paths.yaml"
+        config_path = r"C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\original_code_augmented\config\validation_config.yaml"
         original_validator = OriginalValidator(config_path)
         original_validator.validate()
 

@@ -33,6 +33,17 @@ class HopenetEstimatorImages(object):
         self._validation_config = validation_config
         self._input_images_folder = input_images_folder
         self._input_images_rel_paths_file_name = input_images_rel_paths_file_name
+        self._input_images_file_abs_path = os.path.join(self._input_images_folder, self._input_images_rel_paths_file_name)
+        self._calculate_absolute_image_paths()
+
+    def _calculate_absolute_image_paths(self):
+        # file_names_in_tree_root(self._input_images_folder ,self._input_images_folder, self._input_images_rel_paths_file_name)
+        validation_set_loader = ValidationSetLoader(self._validation_config)
+        paths = validation_set_loader.validation_image_paths
+        with open(self._input_images_file_abs_path) as f:
+            paths = f.readlines()
+        self._abs_images_paths = [os.path.join(self._input_images_folder, path) for path in paths]
+        hi=5
 
     def calculate_results(self):
         def _setup(args):

@@ -5,10 +5,10 @@ from validation_adapters.create_validation_rel_paths_file import create_image_pa
 
 
 class ValidationSetLoader(object):
-    def __init__(self, validation_config, ground_truth_file_path, validation_images_folder_path):
+    def __init__(self, validation_config):
         self._validation_config = validation_config
-        self._ground_truth_file_path = ground_truth_file_path
-        self._validation_images_folder_path = validation_images_folder_path
+        self._ground_truth_file_path = self._validation_config.ground_truth_file_path
+        self._validation_images_folder_path = self._validation_config.validation_images_folder_path
 
         self._load_validation_set()
 

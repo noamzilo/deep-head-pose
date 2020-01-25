@@ -46,7 +46,7 @@ class PnpEstimatorManualTags(object):
 
 if __name__ == "__main__":
     def main():
-        config_path = r"C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\config\paths.yaml"
+        config_path = r"C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\config\validation_config.yaml"
         pnp_estimator = PnpEstimatorManualTags(config_path)
         original_validator = Validator(config_path, pnp_estimator)
         original_validator.validate()
