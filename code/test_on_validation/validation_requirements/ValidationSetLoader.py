@@ -1,12 +1,16 @@
 import os
 import pandas as pd
 import numpy as np
+from validation_adapters.create_validation_rel_paths_file import create_image_paths_file
 
 
 class ValidationSetLoader(object):
-    def __init__(self, ground_truth_file_path, validation_images_folder_path):
+    def __init__(self, validation_config, ground_truth_file_path, validation_images_folder_path):
+        self._validation_config = validation_config
         self._ground_truth_file_path = ground_truth_file_path
         self._validation_images_folder_path = validation_images_folder_path
+
+        self._load_validation_set()
 
     def _load_validation_points(self):
         validation_points = []
@@ -15,7 +19,13 @@ class ValidationSetLoader(object):
             validation_points.append(points)
         self.validation_points = validation_points
 
-    def load_validation_set(self):
+        # create paths file for validation
+        path_validation_images_paths_file, _ = create_image_paths_file(  # TODO this belongs in ValidationSetLoader
+            self.validation_image_paths,
+            self._validation_config.create_rel_paths_file_at,
+            self._validation_config.rel_paths_file_name)
+
+    def _load_validation_set(self):
         ground_truth = pd.read_csv(self._ground_truth_file_path,
                                    sep=r'\s*,\s*',
                                    header=0,
