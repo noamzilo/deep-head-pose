@@ -77,6 +77,8 @@ class HopenetEstimatorImages(object):
         results = []
 
         input_images_paths = self._image_path_list
+        for path in input_images_paths:
+            assert os.path.isfile(path)
 
         frame_num = 1
         for image_full_path in input_images_paths:

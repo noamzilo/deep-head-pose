@@ -2,6 +2,8 @@ from test_on_validation.validation_requirements.ValidationSetLoader import Valid
 from Utils.yaml_utils.ConfigParser import ConfigParser
 import os
 import pandas as pd
+from scipy.spatial.transform import Rotation as R
+import numpy as np
 
 
 class CompareOutputToGround(object):
@@ -14,7 +16,38 @@ class CompareOutputToGround(object):
         self._extract_yaw_pitch_roll_from_results()
 
     def compare(self):
-        pd.testing.assert_frame_equal(self._ground_files_df, self._results_files_df)
+        pd.testing.assert_frame_equal(self._ground_files_df[['file name']], self._results_files_df[['file name']])
+        expected = self._ground_truth
+        actual = self._results
+        # actual_copy = actual.copy()
+
+        def convert(row):
+            roll, pitch, yaw = row[0], row[1], row[2]
+            r = R.from_euler('zxy', (roll, pitch, yaw), degrees=True)
+            # print(r.as_rotvec())
+            return r.as_rotvec()
+
+        for i, row in actual.iterrows():
+            rotvec = convert(row)
+            rx, ry, rz = rotvec
+            actual['rx'][i] = rx
+            actual['ry'][i] = ry
+            actual['rz'][i] = rz
+
+        # calculate angles between actual and expected
+        diffs = []
+        angles = []
+        for (i, row_actual), (_, row_expected) in zip(actual.iterrows(), expected.iterrows()):
+            # a = R.from_euler('zxy', (row_actual[0], row_actual[1], row_actual[2]), degrees=True)
+            # e = R.from_rotvec('xyz', (row_expected[0], row_expected[1], row_expected[2]), degrees=True)
+            a = R.from_rotvec(row_actual)
+            e = R.from_rotvec(row_expected)
+            diff = a * e.inv()
+            diffs.append(diff.as_matrix())
+            angles = [np.rad2deg(np.arccos(np.trace((diff - 1) / 2))) for diff in diffs]
+
+        print(angles)
+        return np.array(angles)
 
     def _extract_rxyz_from_ground(self):
         self._ground_truth_path = self._validation_config.ground_truth_file_path
@@ -28,7 +61,7 @@ class CompareOutputToGround(object):
         self._ground_truth_df.sort_values(by="file name", inplace=True)
         self._ground_truth_df.reset_index(drop=True, inplace=True)
 
-        self._ground_truth = self._ground_truth_df[['rx', 'ry', 'rz']].to_numpy()
+        self._ground_truth = self._ground_truth_df[['rx', 'ry', 'rz']]
         self._ground_files_df = self._ground_truth_df[['file name']]
 
     def _extract_yaw_pitch_roll_from_results(self):
@@ -43,7 +76,7 @@ class CompareOutputToGround(object):
         self._results_df.sort_values(by="file name", inplace=True)
         self._results_df.reset_index(drop=True, inplace=True)
 
-        self._results = self._results_df[['rx', 'ry', 'rz']].to_numpy()
+        self._results = self._results_df[['rx', 'ry', 'rz']]
         self._results_files_df = self._results_df[['file name']]
 
 
