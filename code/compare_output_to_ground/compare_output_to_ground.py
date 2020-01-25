@@ -14,7 +14,7 @@ class CompareOutputToGround(object):
         self._extract_yaw_pitch_roll_from_results()
 
     def compare(self):
-        assert self._gound_files_df == self._results_files_df
+        pd.testing.assert_frame_equal(self._ground_files_df, self._results_files_df)
 
     def _extract_rxyz_from_ground(self):
         self._ground_truth_path = self._validation_config.ground_truth_file_path
@@ -25,9 +25,11 @@ class CompareOutputToGround(object):
                                             header=0,
                                             encoding='ascii',
                                             engine='python')
+        self._ground_truth_df.sort_values(by="file name", inplace=True)
+        self._ground_truth_df.reset_index(drop=True, inplace=True)
 
         self._ground_truth = self._ground_truth_df[['rx', 'ry', 'rz']].to_numpy()
-        self._gound_files_df = self._ground_truth_df[['file name']]
+        self._ground_files_df = self._ground_truth_df[['file name']]
 
     def _extract_yaw_pitch_roll_from_results(self):
         self.results_file_path = os.path.join(self._hopenet_config.output_dir, self._test_config.output_file_name)
@@ -38,6 +40,8 @@ class CompareOutputToGround(object):
                                        header=0,
                                        encoding='ascii',
                                        engine='python')
+        self._results_df.sort_values(by="file name", inplace=True)
+        self._results_df.reset_index(drop=True, inplace=True)
 
         self._results = self._results_df[['rx', 'ry', 'rz']].to_numpy()
         self._results_files_df = self._results_df[['file name']]
