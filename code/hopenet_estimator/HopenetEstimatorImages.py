@@ -70,7 +70,6 @@ class HopenetEstimatorImages(object):
         idx_tensor = torch.FloatTensor(idx_tensor).cuda(self._gpu_id)
         self._idx_tensor = idx_tensor
 
-
     def calculate_results(self):
         self._setup()
         args = self._hopenet_config
@@ -141,9 +140,8 @@ class HopenetEstimatorImages(object):
             pitch_predicted = torch.sum(pitch_predicted.data[0] * idx_tensor) * 3 - 99
             roll_predicted = torch.sum(roll_predicted.data[0] * idx_tensor) * 3 - 99
 
-            results.append(np.array([roll_predicted, pitch_predicted, yaw_predicted, 0., 0., 0.]))
+            results.append((image_full_path, np.array([roll_predicted.item(), pitch_predicted.item(), yaw_predicted.item(), 0., 0., 0.])))
 
-            results.append(np.array([roll_predicted, pitch_predicted, yaw_predicted]))
             # utils.plot_pose_cube(frame, yaw_predicted, pitch_predicted, roll_predicted, (x_min + x_max) / 2, (y_min + y_max) / 2, size = bbox_width)
             utils.draw_axis(frame, yaw_predicted, pitch_predicted, roll_predicted, tdx=(x_min + x_max) / 2,
                             tdy=(y_min + y_max) / 2, size=bbox_height / 2)

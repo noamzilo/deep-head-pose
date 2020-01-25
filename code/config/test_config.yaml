@@ -1,6 +1,11 @@
 model_full_path: C:\Noam\Code\vision_course\face_specific_augm/model_lecturer/model3D_aug_-00_00_01.mat
 ground_truth_file_path: C:\Noam\Code\vision_course\face_pose_estimation\images\valid_set\validation_set.csv
-test_images_folder_path: C:\Noam\Code\vision_course\hopenet\input\test
+#test_images_folder_path: C:\Noam\Code\vision_course\hopenet\input\test
+test_images_folder_path: C:\Noam\Code\vision_course\hopenet\input\small_test
+#create_rel_paths_file_at: C:\Noam\Code\vision_course\hopenet\input\test
+create_rel_paths_file_at: C:\Noam\Code\vision_course\hopenet\input\small_test
+
 predictor_path: C:\Noam\Code\vision_course\shape_predictor\shape_predictor_68_face_landmarks.dat
-create_rel_paths_file_at: C:\Noam\Code\vision_course\hopenet\input\test
+
 rel_paths_file_name: rel_paths.txt
+output_file_name: output.csv
