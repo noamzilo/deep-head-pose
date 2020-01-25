@@ -108,7 +108,7 @@ class HopenetEstimatorImages(object):
                 x_min = 0
                 y_min = 0
                 x_max = cv2_frame.shape[1] - 1  # width
-                y_max = cv2_frame[0] - 1  # height
+                y_max = cv2_frame.shape[0] - 1  # height
 
             bbox_width = abs(x_max - x_min)
             bbox_height = abs(y_max - y_min)
