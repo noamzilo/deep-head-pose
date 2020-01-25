@@ -29,10 +29,10 @@ from Utils.path_utils import path_leaf
 
 
 class HopenetEstimatorImages(object):
-    def __init__(self, hopenet_config, validation_config, image_path_list):
+    def __init__(self, hopenet_config, validation_config, image_full_path_list):
         self._hopenet_config = hopenet_config
         self._validation_config = validation_config
-        self._image_path_list = image_path_list
+        self._image_path_list = image_full_path_list
 
     def _setup(self):
         args = self._hopenet_config
