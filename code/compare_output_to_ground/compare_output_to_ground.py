@@ -21,17 +21,18 @@ class CompareOutputToGround(object):
         actual = self._results
 
         def convert(row):
-            roll, pitch, yaw = row[0], row[1], row[2]
+            roll, pitch, yaw = row[0], -row[1], row[2]
             r = R.from_euler('zxy', (roll, pitch, yaw), degrees=True)
+            # r = R.from_euler('xyz', (roll, pitch, yaw), degrees=True)
             # print(r.as_rotvec())
             return r.as_rotvec()
 
         for i, row in actual.iterrows():
             rotvec = convert(row)
             rx, ry, rz = rotvec
-            actual['rx'][i] = rz
+            actual['rx'][i] = rx
             actual['ry'][i] = ry
-            actual['rz'][i] = rx
+            actual['rz'][i] = rz
 
         # calculate angles between actual and expected
         diffs = []
@@ -39,18 +40,23 @@ class CompareOutputToGround(object):
         for (i, row_actual), (_, row_expected) in zip(actual.iterrows(), expected.iterrows()):
             a = R.from_rotvec(row_actual)
             e = R.from_rotvec(row_expected)
+            # e = R.from_rotvec((row_expected[0], -row_expected[1], row_expected[2]))
 
             a_mat = a.as_matrix()
             e_mat = e.as_matrix()
 
-            angle = np.arccos((np.trace(a_mat.T @ e_mat) - 1) / 2)
-            angles.append(angle)
+            # angle_rad = np.arccos((np.trace(a_mat.T @ e_mat) - 1) / 2)
+            angle_rad = np.arccos((np.trace(a_mat.T @ e_mat) - 1) / 2)
+            angle_deg = np.rad2deg(angle_rad)
+            angle_deg = np.min([angle_deg, 180 - angle_deg])
+            angles.append(angle_deg)
 
             # diff = a * e.inv()
             # diffs.append(diff.as_matrix())
             # angles = [np.rad2deg(np.arccos((np.trace(diff) - 1) / 2)) for diff in diffs]
 
-        print(np.max(angles))
+        print(f"max: {np.max(angles)}")
+        print(f"mean: {np.mean(angles)}")
         return np.array(angles)
 
     def _extract_rxyz_from_ground(self):
@@ -66,6 +72,7 @@ class CompareOutputToGround(object):
         self._ground_truth_df.reset_index(drop=True, inplace=True)
 
         self._ground_truth = self._ground_truth_df[['rx', 'ry', 'rz']]
+        # self._ground_truth.loc[:, 'ry'] = -self._ground_truth_df[['ry']]
         self._ground_files_df = self._ground_truth_df[['file name']]
 
     def _extract_yaw_pitch_roll_from_results(self):
