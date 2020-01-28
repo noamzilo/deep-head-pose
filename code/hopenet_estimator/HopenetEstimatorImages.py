@@ -26,6 +26,7 @@ import torch.nn.functional as F
 from PIL import Image
 import dlib
 from Utils.path_utils import path_leaf
+from scipy.spatial.transform import Rotation as R
 
 
 class HopenetEstimatorImages(object):
@@ -144,7 +145,15 @@ class HopenetEstimatorImages(object):
             pitch_predicted = torch.sum(pitch_predicted.data[0] * idx_tensor) * 3 - 99
             roll_predicted = torch.sum(roll_predicted.data[0] * idx_tensor) * 3 - 99
 
-            results.append((image_full_path, np.array([roll_predicted.item(), pitch_predicted.item(), yaw_predicted.item(), 0., 0., 0.])))
+            def rpy2xyz(r, p, y):
+                r = R.from_euler('zxy', (r, p, y), degrees=True)
+                # r = R.from_euler('xyz', (roll, pitch, yaw), degrees=True)
+                # print(r.as_rotvec())
+                return r.as_rotvec()
+
+            x, y, z = rpy2xyz(roll_predicted.item(), pitch_predicted.item(), yaw_predicted.item())
+
+            results.append((image_full_path, np.array([x, y, z, 0., 0., 0.])))
 
             # utils.plot_pose_cube(frame, yaw_predicted, pitch_predicted, roll_predicted, (x_min + x_max) / 2, (y_min + y_max) / 2, size = bbox_width)
             utils.draw_axis(frame, yaw_predicted, pitch_predicted, roll_predicted, tdx=(x_min + x_max) / 2,
