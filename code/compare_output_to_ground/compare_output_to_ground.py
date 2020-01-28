@@ -56,6 +56,7 @@ class CompareOutputToGround(object):
             # angles = [np.rad2deg(np.arccos((np.trace(diff) - 1) / 2)) for diff in diffs]
 
         print(f"max: {np.max(angles)}")
+        print(f"argmax: {np.argmax(angles)}")
         print(f"mean: {np.mean(angles)}")
         return np.array(angles)
 

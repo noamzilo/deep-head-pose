@@ -12,22 +12,9 @@ if __name__ == "__main__":
     def main():
         hopenet_config, validation_config, test_config = _parse_config()
 
-        test_set_loader = TestSetLoader(test_config)
-
-        # hopenet_estimator = HopenetEstimatorImages(hopenet_config,
-        #                                            validation_config,
-        #                                            test_set_loader.test_images_full_paths)
-
-        # full_validation_paths = r"C:\Noam\Code\vision_course\hopenet\input\validation\valid_set\rel_paths_filtered.txt"
-        # with open(full_validation_paths, 'r') as f:
-        #     validation_images_only_annotated = [path.strip() for path in f.readlines()]
-
-        # hopenet_estimator = HopenetEstimatorImages(hopenet_config,
-        #                                            validation_config,
-        #                                            validation_images_only_annotated)
-
-        _, rel_paths = file_names_in_tree_root(test_config.test_images_folder_path, test_config.test_images_folder_path,
-                                "rel_paths.txt")
+        _, rel_paths = file_names_in_tree_root(test_config.test_images_folder_path,
+                                               test_config.test_images_folder_path,
+                                               "rel_paths.txt")
 
         abs_paths = [os.path.join(test_config.test_images_folder_path, path) + ".png" for path in rel_paths]
 
