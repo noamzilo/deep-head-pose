@@ -21,18 +21,24 @@ class CompareOutputToGround(object):
         actual = self._results
 
         # doing the conversion in the original
-        # def convert(row):
-        #     roll, pitch, yaw = row[0], -row[1], row[2]
-        #     r = R.from_euler('zxy', (roll, pitch, yaw), degrees=True)
-        #     # r = R.from_euler('xyz', (roll, pitch, yaw), degrees=True)
-        #     # print(r.as_rotvec())
-        #     return r.as_rotvec()
-        #
-        # for i, row in actual.iterrows():
-        #     rotvec = convert(row)
-        #     rx, ry, rz = rotvec
+        def convert(row):
+            roll, pitch, yaw = row[0], row[1], row[2]
+            r = R.from_euler('zxy', (roll, pitch, yaw), degrees=True)
+            # r = R.from_euler('xyz', (roll, pitch, yaw), degrees=True)
+            # print(r.as_rotvec())
+            return r.as_rotvec()
+
+        for i, row in actual.iterrows():
+            rotvec = convert(row)
+            rx, ry, rz = rotvec
+            actual['rx'][i] = -rx
+            actual['ry'][i] = ry
+            actual['rz'][i] = rz
+
+        # for i, row in expected.iterrows():
+        #     rx, ry, rz = row
         #     actual['rx'][i] = rx
-        #     actual['ry'][i] = ry
+        #     actual['ry'][i] = -ry
         #     actual['rz'][i] = rz
 
         # calculate angles between actual and expected

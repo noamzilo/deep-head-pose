@@ -6,6 +6,8 @@ import scipy.io as sio
 import cv2
 import math
 from math import cos, sin
+from scipy.spatial.transform import Rotation as R
+
 
 def softmax_temperature(tensor, temperature):
     result = torch.exp(tensor / temperature)
@@ -84,7 +86,6 @@ def plot_pose_cube(img, yaw, pitch, roll, tdx=None, tdy=None, size=150.):
     return img
 
 def draw_axis(img, yaw, pitch, roll, tdx=None, tdy=None, size = 100):
-
     pitch = pitch * np.pi / 180
     yaw = -(yaw * np.pi / 180)
     roll = roll * np.pi / 180
@@ -114,4 +115,11 @@ def draw_axis(img, yaw, pitch, roll, tdx=None, tdy=None, size = 100):
     cv2.line(img, (int(tdx), int(tdy)), (int(x2),int(y2)),(0,255,0),3)
     cv2.line(img, (int(tdx), int(tdy)), (int(x3),int(y3)),(255,0,0),2)
 
+    return img
+
+
+def draw_axis_rotvec(img, rx, ry, rz, tdx=None, tdy=None, size=100):
+    r = R.from_rotvec([rx, ry, rz])
+    y, p, r = r.as_euler()
+    draw_axis(img, y, p, r, tdx=tdx, tdy=tdy, size=size)
     return img

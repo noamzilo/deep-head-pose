@@ -153,13 +153,22 @@ class HopenetEstimatorImages(object):
 
             x, y, z = rpy2xyz(roll_predicted.item(), pitch_predicted.item(), yaw_predicted.item())
 
-            results.append((image_full_path, np.array([x, y, z, 0., 0., 0.])))
+            results.append((image_full_path, np.array([-x, y, z, 0., 0., 0.])))
+            is_plot_rvec = True
+            if is_plot_rvec:
+                utils.draw_axis_rotvec(frame, x, y, z, tdx=(x_min + x_max) / 2,
+                                       tdy=(y_min + y_max) / 2, size=bbox_height / 2)
+            else:
+                utils.draw_axis(frame, yaw_predicted, pitch_predicted, roll_predicted, tdx=(x_min + x_max) / 2,
+                                tdy=(y_min + y_max) / 2, size=bbox_height / 2)
+
 
             # utils.plot_pose_cube(frame, yaw_predicted, pitch_predicted, roll_predicted, (x_min + x_max) / 2, (y_min + y_max) / 2, size = bbox_width)
-            utils.draw_axis(frame, yaw_predicted, pitch_predicted, roll_predicted, tdx=(x_min + x_max) / 2,
-                            tdy=(y_min + y_max) / 2, size=bbox_height / 2)
+
             # Plot expanded bounding box
             # cv2.rectangle(frame, (x_min, y_min), (x_max, y_max), (0,255,0), 1)
+
+
 
             out_file_full_path = os.path.join(self._hopenet_config.output_dir, path_leaf(image_full_path))
             cv2.imwrite(filename=out_file_full_path, img=frame)
