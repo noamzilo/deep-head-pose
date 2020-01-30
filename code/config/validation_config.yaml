@@ -5,3 +5,4 @@ validation_images_folder_path: C:\Noam\Code\vision_course\hopenet\input\validati
 predictor_path: C:\Noam\Code\vision_course\shape_predictor\shape_predictor_68_face_landmarks.dat
 create_rel_paths_file_at: C:\Noam\Code\vision_course\hopenet\input\validation2
 rel_paths_file_name: rel_paths.txt
+is_using_opencv_face_detector: False

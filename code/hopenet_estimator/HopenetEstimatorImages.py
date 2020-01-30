@@ -34,6 +34,7 @@ class HopenetEstimatorImages(object):
         self._hopenet_config = hopenet_config
         self._validation_config = validation_config
         self._image_path_list = image_full_path_list
+        self._is_using_opencv_face_detector = self._hopenet_config.is_using_opencv_face_detector
 
     def _setup(self):
         args = self._hopenet_config
@@ -99,8 +100,11 @@ class HopenetEstimatorImages(object):
 
             # Dlib detect
             # CAN DISABLE FACE DETECTION FOR SPEED
-            detections = self._cnn_face_detector(cv2_frame, 1)
-            # detections = []
+            if self._is_using_opencv_face_detector:
+                detections = self._cnn_face_detector(cv2_frame, 1)
+            else:
+                detections = []
+
             detections = sorted(detections, key=lambda x: x.confidence)
             if len(detections) > 0:
                 detection = detections[0] # TODO if no detection, return the entire frame.
@@ -147,8 +151,6 @@ class HopenetEstimatorImages(object):
 
             def rpy2xyz(r, p, y):
                 r = R.from_euler('zxy', (r, p, y), degrees=True)
-                # r = R.from_euler('xyz', (roll, pitch, yaw), degrees=True)
-                # print(r.as_rotvec())
                 return r.as_rotvec()
 
             x, y, z = rpy2xyz(roll_predicted.item(), pitch_predicted.item(), yaw_predicted.item())
