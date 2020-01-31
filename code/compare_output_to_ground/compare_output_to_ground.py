@@ -28,17 +28,17 @@ class CompareOutputToGround(object):
             # print(r.as_rotvec())
             return r.as_rotvec()
 
-        for i, row in actual.iterrows():
-            rotvec = convert(row)
-            rx, ry, rz = rotvec
-            actual['rx'][i] = rx
-            actual['ry'][i] = ry
-            actual['rz'][i] = rz
+        # for i, row in actual.iterrows():
+        #     rotvec = convert(row)
+        #     rx, ry, rz = rotvec
+        #     actual['rx'][i] = rx
+        #     actual['ry'][i] = ry
+        #     actual['rz'][i] = rz
 
         # for i, row in expected.iterrows():
         #     rx, ry, rz = row
         #     actual['rx'][i] = rx
-        #     actual['ry'][i] = -ry
+        #     actual['ry'][i] = ry
         #     actual['rz'][i] = rz
 
         # calculate angles between actual and expected

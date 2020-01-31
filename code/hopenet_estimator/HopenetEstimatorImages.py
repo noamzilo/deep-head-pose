@@ -150,12 +150,12 @@ class HopenetEstimatorImages(object):
             roll_predicted = torch.sum(roll_predicted.data[0] * idx_tensor) * 3 - 99
 
             def rpy2xyz(r, p, y):
-                r = R.from_euler('zxy', (r, p, y), degrees=True)
+                r = R.from_euler('zxy', (r, -p, y), degrees=True)
                 return r.as_rotvec()
 
             x, y, z = rpy2xyz(roll_predicted.item(), pitch_predicted.item(), yaw_predicted.item())
 
-            results.append((image_full_path, np.array([-x, y, z, 0., 0., 0.])))
+            results.append((image_full_path, np.array([x, y, z, 0., 0., 0.])))
             is_plot_rvec = True
             if is_plot_rvec:
                 utils.draw_axis_rotvec(frame, x, y, z, tdx=(x_min + x_max) / 2,
