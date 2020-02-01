@@ -13,6 +13,9 @@ import torch.utils.model_zoo as model_zoo
 from Utils.create_filename_list import file_names_in_tree_root
 
 from Utils.yaml_utils.ConfigParser import ConfigParser
+import cv2
+from scipy.spatial.transform import Rotation as R
+from Utils import utils
 
 
 def get_ignored_params(model):
@@ -210,52 +213,70 @@ if __name__ == '__main__':
             'output/snapshots/' + args.output_string + '_epoch_'+ str(epoch+1) + '.pkl')
 
         # calculate validation error
+        print("about to validate")
         model.eval()
-        for i, (images_, labels_, cont_labels_, name_) in enumerate(validation_loader):
-            images_ = Variable(images_).cuda(gpu)
+        with torch.no_grad():        
+            for i, (images_, labels_, cont_labels_, name_) in enumerate(validation_loader):
+                images_ = Variable(images_).cuda(gpu)
 
-            # Binned labels
-            label_yaw_ = Variable(labels_[:,0]).cuda(gpu)
-            label_pitch_ = Variable(labels_[:,1]).cuda(gpu)
-            label_roll_ = Variable(labels_[:,2]).cuda(gpu)
+                # Binned labels
+                label_yaw_ = Variable(labels_[:,0]).cuda(gpu)
+                label_pitch_ = Variable(labels_[:,1]).cuda(gpu)
+                label_roll_ = Variable(labels_[:,2]).cuda(gpu)
 
-            # Continuous labels
-            label_yaw_cont_ = Variable(cont_labels_[:,0]).cuda(gpu)
-            label_pitch_cont_ = Variable(cont_labels_[:,1]).cuda(gpu)
-            label_roll_cont_ = Variable(cont_labels_[:,2]).cuda(gpu)
+                # Continuous labels
+                label_yaw_cont_ = Variable(cont_labels_[:,0]).cuda(gpu)
+                label_pitch_cont_ = Variable(cont_labels_[:,1]).cuda(gpu)
+                label_roll_cont_ = Variable(cont_labels_[:,2]).cuda(gpu)
 
-            # Forward pass
-            yaw_, pitch_, roll_ = model(images_)
+                # Forward pass
+                yaw_, pitch_, roll_ = model(images_)
 
-            # Cross entropy loss
-            loss_yaw_ = criterion(yaw_, label_yaw_)
-            loss_pitch_ = criterion(pitch_, label_pitch_)
-            loss_roll_ = criterion(roll_, label_roll_)
+                # Cross entropy loss
+                loss_yaw_ = criterion(yaw_, label_yaw_)
+                loss_pitch_ = criterion(pitch_, label_pitch_)
+                loss_roll_ = criterion(roll_, label_roll_)
 
-            # MSE loss
-            yaw_predicted_ = softmax(yaw_)
-            pitch_predicted_ = softmax(pitch_)
-            roll_predicted_ = softmax(roll_)
+                # MSE loss
+                yaw_predicted_ = softmax(yaw_)
+                pitch_predicted_ = softmax(pitch_)
+                roll_predicted_ = softmax(roll_)
 
-            yaw_predicted_ = torch.sum(yaw_predicted_ * idx_tensor_, 1) * 3 - 99
-            pitch_predicted_ = torch.sum(pitch_predicted_ * idx_tensor_, 1) * 3 - 99
-            roll_predicted_ = torch.sum(roll_predicted_ * idx_tensor_, 1) * 3 - 99
+                yaw_predicted_ = torch.sum(yaw_predicted_ * idx_tensor_, 1) * 3 - 99
+                pitch_predicted_ = torch.sum(pitch_predicted_ * idx_tensor_, 1) * 3 - 99
+                roll_predicted_ = torch.sum(roll_predicted_ * idx_tensor_, 1) * 3 - 99
 
-            loss_reg_yaw_ = reg_criterion(yaw_predicted_, label_yaw_cont_)
-            loss_reg_pitch_ = reg_criterion(pitch_predicted_, label_pitch_cont_)
-            loss_reg_roll_ = reg_criterion(roll_predicted_, label_roll_cont_)
+                loss_reg_yaw_ = reg_criterion(yaw_predicted_, label_yaw_cont_)
+                loss_reg_pitch_ = reg_criterion(pitch_predicted_, label_pitch_cont_)
+                loss_reg_roll_ = reg_criterion(roll_predicted_, label_roll_cont_)
 
-            # Total loss
-            loss_yaw_ += alpha * loss_reg_yaw_
-            loss_pitch_ += alpha * loss_reg_pitch_
-            loss_roll_ += alpha * loss_reg_roll_
+                # Total loss
+                loss_yaw_ += alpha * loss_reg_yaw_
+                loss_pitch_ += alpha * loss_reg_pitch_
+                loss_roll_ += alpha * loss_reg_roll_
 
-            if (i+1) % 100 == 0:
-                print ('Epoch Validation Loss: [%d/%d], Iter [%d/%d] Losses: Yaw %.4f, Pitch %.4f, Roll %.4f'
-                       %(epoch+1,
-                         num_epochs,
-                         i+1,
-                         len(pose_dataset_validation)//1,
-                         loss_yaw_.item(),
-                         loss_pitch_.item(),
-                         loss_roll_.item()))
+                if (i+1) % 100 == 0:
+                    print ('Epoch Validation Loss: [%d/%d], Iter [%d/%d] Losses: Yaw %.4f, Pitch %.4f, Roll %.4f'
+                           %(epoch+1,
+                             num_epochs,
+                             i+1,
+                             len(pose_dataset_validation)//1,
+                             loss_yaw_.item(),
+                             loss_pitch_.item(),
+                             loss_roll_.item()))
+
+                    if not os.path.isdir(hopenet_config.output_dir):
+                        os.mkdir(hopenet_config.output_dir)
+                    frame_ = images_[0]
+
+                    def rpy2xyz(r, p, y):
+                        r = R.from_euler('zxy', (r, -p, y), degrees=True)
+                        return r.as_rotvec()
+
+                    x_, y_, z_ = rpy2xyz(roll_predicted_.item(), pitch_predicted_.item(), yaw_predicted_.item())
+
+                    is_plot_rvec = True
+                    utils.draw_axis_rotvec(frame_, x_, y_, z_)
+                    cv2.imwrite(filename=os.path.join(hopenet_config.output_dir, name_), img=frame_)
+                    hi = 5
+

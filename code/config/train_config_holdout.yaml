@@ -17,6 +17,6 @@ output_string: output
 face_detector_path: C:\Noam\Code\vision_course\hopenet\models\mmod_human_face_detector.dat
 scale_percent: 100.0
 
-output_dir: C:\Noam\Code\vision_course\hopenet\output
+output_dir: C:\Noam\Code\vision_course\hopenet\output_holdout
 #output_dir: C:\Noam\Code\vision_course\hopenet\output_alpha_robust
 output_model_dir: output\models
