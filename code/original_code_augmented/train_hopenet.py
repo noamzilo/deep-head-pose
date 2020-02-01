@@ -12,6 +12,8 @@ from original_code_augmented import hopenet, datasets
 import torch.utils.model_zoo as model_zoo
 from Utils.create_filename_list import file_names_in_tree_root
 
+from Utils.yaml_utils.ConfigParser import ConfigParser
+
 
 def parse_args():
     default_snapshot_path = r"C:\Noam\Code\vision_course\hopenet\models\hopenet_robust_alpha1.pkl"
@@ -25,7 +27,7 @@ def parse_args():
 
     parser = argparse.ArgumentParser(description='Head pose estimation using the Hopenet network.')
     parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
-            default=0, type=int)
+                        default=0, type=int)
     parser.add_argument('--num_epochs', dest='num_epochs', help='Maximum number of training epochs.',
           default=5, type=int)
     parser.add_argument('--batch_size', dest='batch_size', help='Batch size.',
@@ -82,12 +84,20 @@ def load_filtered_state_dict(model, snapshot):
     model.load_state_dict(model_dict)
 
 if __name__ == '__main__':
-    args = parse_args()
+    # args = parse_args()
+
+    hopenet_config_path = r"C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\config\train_config.yaml"
+    hopenet_config = ConfigParser(hopenet_config_path).parse()
+    args = hopenet_config
+    data_dir = args.train_data_dir_path
+    filename_list = args.file_name_list
+
 
     cudnn.enabled = True
     num_epochs = args.num_epochs
-    batch_size = args.batch_size
+    batch_size = args.batch_size_train
     gpu = args.gpu_id
+    snapshot_path = args.snapshot_path
 
     if not os.path.exists('output/snapshots'):
         os.makedirs('output/snapshots')
@@ -95,10 +105,10 @@ if __name__ == '__main__':
     # ResNet50 structure
     model = hopenet.Hopenet(torchvision.models.resnet.Bottleneck, [3, 4, 6, 3], 66)
 
-    if args.snapshot == '':
+    if snapshot_path == '':
         load_filtered_state_dict(model, model_zoo.load_url('https://download.pytorch.org/models/resnet50-19c8e357.pth'))
     else:
-        saved_state_dict = torch.load(args.snapshot)
+        saved_state_dict = torch.load(snapshot_path)
         model.load_state_dict(saved_state_dict)
 
     print('Loading data.')
@@ -108,21 +118,21 @@ if __name__ == '__main__':
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
 
     if args.dataset == 'Pose_300W_LP':
-        pose_dataset = datasets.Pose_300W_LP(args.data_dir, args.filename_list, transformations)
+        pose_dataset = datasets.Pose_300W_LP(data_dir, filename_list, transformations)
     elif args.dataset == 'Pose_300W_LP_random_ds':
-        pose_dataset = datasets.Pose_300W_LP_random_ds(args.data_dir, args.filename_list, transformations)
+        pose_dataset = datasets.Pose_300W_LP_random_ds(data_dir, filename_list, transformations)
     elif args.dataset == 'Synhead':
-        pose_dataset = datasets.Synhead(args.data_dir, args.filename_list, transformations)
+        pose_dataset = datasets.Synhead(data_dir, filename_list, transformations)
     elif args.dataset == 'AFLW2000':
-        pose_dataset = datasets.AFLW2000(args.data_dir, args.filename_list, transformations)
+        pose_dataset = datasets.AFLW2000(data_dir, filename_list, transformations)
     elif args.dataset == 'BIWI':
-        pose_dataset = datasets.BIWI(args.data_dir, args.filename_list, transformations)
+        pose_dataset = datasets.BIWI(data_dir, filename_list, transformations)
     elif args.dataset == 'AFLW':
-        pose_dataset = datasets.AFLW(args.data_dir, args.filename_list, transformations)
+        pose_dataset = datasets.AFLW(data_dir, filename_list, transformations)
     elif args.dataset == 'AFLW_aug':
-        pose_dataset = datasets.AFLW_aug(args.data_dir, args.filename_list, transformations)
+        pose_dataset = datasets.AFLW_aug(data_dir, filename_list, transformations)
     elif args.dataset == 'AFW':
-        pose_dataset = datasets.AFW(args.data_dir, args.filename_list, transformations)
+        pose_dataset = datasets.AFW(data_dir, filename_list, transformations)
     else:
         print('Error: not a valid dataset name')
         sys.exit()
@@ -137,15 +147,16 @@ if __name__ == '__main__':
     reg_criterion = nn.MSELoss().cuda(gpu)
     # Regression loss coefficient
     alpha = args.alpha
+    learning_rate = args.learning_rate
 
     softmax = nn.Softmax().cuda(gpu)
     idx_tensor = list(range(66))
     idx_tensor = Variable(torch.FloatTensor(idx_tensor)).cuda(gpu)
 
     optimizer = torch.optim.Adam([{'params': get_ignored_params(model), 'lr': 0},
-                                  {'params': get_non_ignored_params(model), 'lr': args.lr},
-                                  {'params': get_fc_params(model), 'lr': args.lr * 5}],
-                                   lr = args.lr)
+                                  {'params': get_non_ignored_params(model), 'lr': learning_rate},
+                                  {'params': get_fc_params(model), 'lr': learning_rate * 5}],
+                                   lr = learning_rate)
 
     print('Ready to train network.')
     for epoch in range(num_epochs):
