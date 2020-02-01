@@ -8,6 +8,7 @@ from torch.utils.data.dataset import Dataset
 from PIL import Image, ImageFilter
 
 from Utils import utils
+import random
 
 
 def get_list_from_filenames(file_path):
@@ -79,18 +80,37 @@ class Synhead(Dataset):
 
 class Pose_300W_LP(Dataset):
     # Head pose from 300W-LP dataset
-    def __init__(self, data_dir, filename_path, transform, img_ext='.jpg', annot_ext='.mat', image_mode='RGB'):
+    def __init__(self,
+                 data_dir,
+                 filename_path,
+                 transform,
+                 img_ext='.jpg',
+                 annot_ext='.mat',
+                 image_mode='RGB',
+                 train_percent=100.,
+                 use_train=True,
+                 seed=17):
+        assert 0. <= train_percent <= 100.
+
         self.data_dir = data_dir
         self.transform = transform
         self.img_ext = img_ext
         self.annot_ext = annot_ext
 
+        # allowing a sub sample of the dataset for training and validation
         filename_list = get_list_from_filenames(filename_path)
+        self.length = int(len(filename_list) * train_percent // 100)
+        random.seed(seed)
+        if use_train:
+            filename_list = random.sample(filename_list, self.length)
+        else:
+            filename_list = [f for f in filename_list if f not in random.sample(filename_list, self.length)]
+            self.length = len(filename_list)
 
         self.X_train = filename_list
         self.y_train = filename_list
         self.image_mode = image_mode
-        self.length = len(filename_list)
+        # self.length = len(filename_list)
 
     def __getitem__(self, index):
         img = Image.open(os.path.join(self.data_dir, self.X_train[index] + self.img_ext))
