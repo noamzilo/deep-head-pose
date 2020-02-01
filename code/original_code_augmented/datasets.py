@@ -101,10 +101,13 @@ class Pose_300W_LP(Dataset):
         filename_list = get_list_from_filenames(filename_path)
         self.length = int(len(filename_list) * train_percent // 100)
         random.seed(seed)
+        train_inds = set(random.sample(np.arange(self.length)))
+        validation_inds = set(np.arange(self.length)) - train_inds
+
         if use_train:
-            filename_list = random.sample(filename_list, self.length)
+            filename_list = [filename_list[i] for i in train_inds]
         else:
-            filename_list = [f for f in filename_list if f not in random.sample(filename_list, self.length)]
+            filename_list = [filename_list[i] for i in validation_inds]
             self.length = len(filename_list)
 
         self.X_train = filename_list
