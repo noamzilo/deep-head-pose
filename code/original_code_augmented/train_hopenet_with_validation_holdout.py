@@ -215,7 +215,7 @@ if __name__ == '__main__':
         # calculate validation error
         print("about to validate")
         model.eval()
-        with torch.no_grad():        
+        with torch.no_grad():
             for i, (images_, labels_, cont_labels_, name_) in enumerate(validation_loader):
                 images_ = Variable(images_).cuda(gpu)
 
@@ -276,7 +276,7 @@ if __name__ == '__main__':
                     x_, y_, z_ = rpy2xyz(roll_predicted_.item(), pitch_predicted_.item(), yaw_predicted_.item())
 
                     is_plot_rvec = True
-                    utils.draw_axis_rotvec(frame_, x_, y_, z_)
+                    utils.draw_axis_rotvec(frame_.cpu().numpy().swapaxes(0, 1).swapaxes(1, 2), x_, y_, z_)
                     cv2.imwrite(filename=os.path.join(hopenet_config.output_dir, name_), img=frame_)
                     hi = 5
 
