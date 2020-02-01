@@ -50,6 +50,7 @@ def load_filtered_state_dict(model, snapshot):
     model_dict.update(snapshot)
     model.load_state_dict(model_dict)
 
+
 if __name__ == '__main__':
     hopenet_config_path = r"C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\config\train_config_holdout.yaml"
     hopenet_config = ConfigParser(hopenet_config_path).parse()
@@ -121,7 +122,7 @@ if __name__ == '__main__':
                                                shuffle=True,
                                                num_workers=2)
     validation_loader = torch.utils.data.DataLoader(dataset=pose_dataset_validation,
-                                               batch_size=batch_size,
+                                               batch_size=1,
                                                shuffle=True,
                                                num_workers=2)
 
@@ -146,6 +147,7 @@ if __name__ == '__main__':
 
     print('Ready to train network.')
     for epoch in range(num_epochs):
+        model.train()
         for i, (images, labels, cont_labels, name) in enumerate(train_loader):
             images = Variable(images).cuda(gpu)
 
@@ -208,6 +210,7 @@ if __name__ == '__main__':
             'output/snapshots/' + args.output_string + '_epoch_'+ str(epoch+1) + '.pkl')
 
         # calculate validation error
+        model.eval()
         for i, (images_, labels_, cont_labels_, name_) in enumerate(validation_loader):
             images_ = Variable(images_).cuda(gpu)
 
@@ -252,7 +255,7 @@ if __name__ == '__main__':
                        %(epoch+1,
                          num_epochs,
                          i+1,
-                         len(pose_dataset_validation)//batch_size,
+                         len(pose_dataset_validation)//1,
                          loss_yaw_.item(),
                          loss_pitch_.item(),
                          loss_roll_.item()))
