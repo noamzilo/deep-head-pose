@@ -16,6 +16,7 @@ from Utils.yaml_utils.ConfigParser import ConfigParser
 import cv2
 from scipy.spatial.transform import Rotation as R
 from Utils import utils
+import numpy as np
 
 
 def get_ignored_params(model):
@@ -217,6 +218,10 @@ if __name__ == '__main__':
         model.eval()
         with torch.no_grad():
             for i, (images_, labels_, cont_labels_, name_) in enumerate(validation_loader):
+                original = images_[0].cpu().numpy().swapaxes(0, 1).swapaxes(1, 2)
+                # cv2.imshow("image", original )
+                # cv2.waitKey(0)
+
                 images_ = Variable(images_).cuda(gpu)
 
                 # Binned labels
@@ -276,7 +281,16 @@ if __name__ == '__main__':
                     x_, y_, z_ = rpy2xyz(roll_predicted_.item(), pitch_predicted_.item(), yaw_predicted_.item())
 
                     is_plot_rvec = True
-                    utils.draw_axis_rotvec(frame_.cpu().numpy().swapaxes(0, 1).swapaxes(1, 2), x_, y_, z_)
-                    cv2.imwrite(filename=os.path.join(hopenet_config.output_dir, name_), img=frame_)
+                    # frame_cpu = frame_.cpu().numpy().swapaxes(0, 1).swapaxes(1, 2)
+                    # frame_cpu_normed = (frame_cpu - frame_cpu.min()) / (frame_cpu.max() - frame_cpu.min())
+                    frame_cpu_normed = original
+                    frame_cpu_normed = 255 * (frame_cpu_normed - frame_cpu_normed .min()) / (frame_cpu_normed .max() - frame_cpu_normed .min())
+                    np.array(frame_cpu_normed, np.int)
+
+                    frame_cpu_tagged = utils.draw_axis_rotvec(frame_cpu_normed, x_, y_, z_)
+                    file_name = os.path.join(hopenet_config.output_dir, "_".join(name_[0].split('\\'))) + f"epoch_{epoch}" + '.jpg'
+                    # cv2.imshow("process", frame_cpu_normed)
+                    # cv2.waitKey(0)
+                    cv2.imwrite(filename=file_name, img=frame_cpu_tagged)
                     hi = 5
 
