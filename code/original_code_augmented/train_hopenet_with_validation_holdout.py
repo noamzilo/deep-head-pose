@@ -283,11 +283,15 @@ if __name__ == '__main__':
                     is_plot_rvec = True
                     # frame_cpu = frame_.cpu().numpy().swapaxes(0, 1).swapaxes(1, 2)
                     # frame_cpu_normed = (frame_cpu - frame_cpu.min()) / (frame_cpu.max() - frame_cpu.min())
-                    frame_cpu_normed = original
+                    frame_cpu_normed = cv2.cvtColor(original, cv2.COLOR_BGR2RGB)
+
                     frame_cpu_normed = 255 * (frame_cpu_normed - frame_cpu_normed .min()) / (frame_cpu_normed .max() - frame_cpu_normed .min())
-                    np.array(frame_cpu_normed, np.int)
+                    frame_cpu_normed = np.array(frame_cpu_normed, np.int)
 
                     frame_cpu_tagged = utils.draw_axis_rotvec(frame_cpu_normed, x_, y_, z_)
+
+
+
                     file_name = os.path.join(hopenet_config.output_dir, "_".join(name_[0].split('\\'))) + f"epoch_{epoch}" + '.jpg'
                     # cv2.imshow("process", frame_cpu_normed)
                     # cv2.waitKey(0)
