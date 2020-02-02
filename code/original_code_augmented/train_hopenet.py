@@ -16,9 +16,10 @@ from Utils.yaml_utils.ConfigParser import ConfigParser
 
 
 def parse_args():
-    default_snapshot_path = r"C:\Noam\Code\vision_course\hopenet\models\hopenet_robust_alpha1.pkl"
-    default_data_dir_path = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\300W-3D"
-    file_names_in_tree_root(default_data_dir_path)
+    # default_snapshot_path = r"C:\Noam\Code\vision_course\hopenet\models\hopenet_robust_alpha1.pkl"
+    # default_data_dir_path = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\300W-3D"
+    default_data_dir_path = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\big_set\300W_LP"
+    file_names_in_tree_root(default_data_dir_path, default_data_dir_path, "rel_paths.txt")
     default_file_name_list = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\rel_paths.txt"
 
     speedup_factor = 2 ** 0
@@ -161,6 +162,8 @@ if __name__ == '__main__':
     print('Ready to train network.')
     for epoch in range(num_epochs):
         for i, (images, labels, cont_labels, name) in enumerate(train_loader):
+            if i % 20 == 0:
+                print(f"epoch {epoch}, i={i}")
             images = Variable(images).cuda(gpu)
 
             # Binned labels

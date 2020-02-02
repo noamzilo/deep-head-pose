@@ -88,6 +88,7 @@ if __name__ == '__main__':
     transforms.RandomCrop(224), transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
 
+    # train_percentage = 100
     if args.dataset == 'Pose_300W_LP':
         pose_dataset = datasets.Pose_300W_LP(data_dir,
                                              filename_list,
@@ -128,7 +129,7 @@ if __name__ == '__main__':
     validation_loader = torch.utils.data.DataLoader(dataset=pose_dataset_validation,
                                                batch_size=1,
                                                shuffle=True,
-                                               num_workers=2)
+                                               num_workers=4)
 
     model.cuda(gpu)
     criterion = nn.CrossEntropyLoss().cuda(gpu)
@@ -151,8 +152,10 @@ if __name__ == '__main__':
 
     print('Ready to train network.')
     for epoch in range(num_epochs):
-        model.train()
+        # model.train()
         for i, (images, labels, cont_labels, name) in enumerate(train_loader):
+            if i % 20 == 0:
+                print(f"image #{i}")
             images = Variable(images).cuda(gpu)
 
             # Binned labels
@@ -214,87 +217,87 @@ if __name__ == '__main__':
             'output/snapshots/' + args.output_string + '_epoch_'+ str(epoch+1) + '.pkl')
 
         # calculate validation error
-        print("about to validate")
-        model.eval()
-        with torch.no_grad():
-            for i, (images_, labels_, cont_labels_, name_) in enumerate(validation_loader):
-                original = images_[0].cpu().numpy().swapaxes(0, 1).swapaxes(1, 2)
-                # cv2.imshow("image", original )
-                # cv2.waitKey(0)
-
-                images_ = Variable(images_).cuda(gpu)
-
-                # Binned labels
-                label_yaw_ = Variable(labels_[:,0]).cuda(gpu)
-                label_pitch_ = Variable(labels_[:,1]).cuda(gpu)
-                label_roll_ = Variable(labels_[:,2]).cuda(gpu)
-
-                # Continuous labels
-                label_yaw_cont_ = Variable(cont_labels_[:,0]).cuda(gpu)
-                label_pitch_cont_ = Variable(cont_labels_[:,1]).cuda(gpu)
-                label_roll_cont_ = Variable(cont_labels_[:,2]).cuda(gpu)
-
-                # Forward pass
-                yaw_, pitch_, roll_ = model(images_)
-
-                # Cross entropy loss
-                loss_yaw_ = criterion(yaw_, label_yaw_)
-                loss_pitch_ = criterion(pitch_, label_pitch_)
-                loss_roll_ = criterion(roll_, label_roll_)
-
-                # MSE loss
-                yaw_predicted_ = softmax(yaw_)
-                pitch_predicted_ = softmax(pitch_)
-                roll_predicted_ = softmax(roll_)
-
-                yaw_predicted_ = torch.sum(yaw_predicted_ * idx_tensor_, 1) * 3 - 99
-                pitch_predicted_ = torch.sum(pitch_predicted_ * idx_tensor_, 1) * 3 - 99
-                roll_predicted_ = torch.sum(roll_predicted_ * idx_tensor_, 1) * 3 - 99
-
-                loss_reg_yaw_ = reg_criterion(yaw_predicted_, label_yaw_cont_)
-                loss_reg_pitch_ = reg_criterion(pitch_predicted_, label_pitch_cont_)
-                loss_reg_roll_ = reg_criterion(roll_predicted_, label_roll_cont_)
-
-                # Total loss
-                loss_yaw_ += alpha * loss_reg_yaw_
-                loss_pitch_ += alpha * loss_reg_pitch_
-                loss_roll_ += alpha * loss_reg_roll_
-
-                if (i+1) % 100 == 0:
-                    print ('Epoch Validation Loss: [%d/%d], Iter [%d/%d] Losses: Yaw %.4f, Pitch %.4f, Roll %.4f'
-                           %(epoch+1,
-                             num_epochs,
-                             i+1,
-                             len(pose_dataset_validation)//1,
-                             loss_yaw_.item(),
-                             loss_pitch_.item(),
-                             loss_roll_.item()))
-
-                    if not os.path.isdir(hopenet_config.output_dir):
-                        os.mkdir(hopenet_config.output_dir)
-                    frame_ = images_[0]
-
-                    def rpy2xyz(r, p, y):
-                        r = R.from_euler('zxy', (r, -p, y), degrees=True)
-                        return r.as_rotvec()
-
-                    x_, y_, z_ = rpy2xyz(roll_predicted_.item(), pitch_predicted_.item(), yaw_predicted_.item())
-
-                    is_plot_rvec = True
-                    # frame_cpu = frame_.cpu().numpy().swapaxes(0, 1).swapaxes(1, 2)
-                    # frame_cpu_normed = (frame_cpu - frame_cpu.min()) / (frame_cpu.max() - frame_cpu.min())
-                    frame_cpu_normed = cv2.cvtColor(original, cv2.COLOR_BGR2RGB)
-
-                    frame_cpu_normed = 255 * (frame_cpu_normed - frame_cpu_normed .min()) / (frame_cpu_normed .max() - frame_cpu_normed .min())
-                    frame_cpu_normed = np.array(frame_cpu_normed, np.int)
-
-                    frame_cpu_tagged = utils.draw_axis_rotvec(frame_cpu_normed, x_, y_, z_)
-
-
-
-                    file_name = os.path.join(hopenet_config.output_dir, "_".join(name_[0].split('\\'))) + f"epoch_{epoch}" + '.jpg'
-                    # cv2.imshow("process", frame_cpu_normed)
-                    # cv2.waitKey(0)
-                    cv2.imwrite(filename=file_name, img=frame_cpu_tagged)
-                    hi = 5
+        # print("about to validate")
+        # model.eval()
+        # with torch.no_grad():
+        #     for i, (images_, labels_, cont_labels_, name_) in enumerate(validation_loader):
+        #         original = images_[0].cpu().numpy().swapaxes(0, 1).swapaxes(1, 2)
+        #         # cv2.imshow("image", original )
+        #         # cv2.waitKey(0)
+        #
+        #         images_ = Variable(images_).cuda(gpu)
+        #
+        #         # Binned labels
+        #         label_yaw_ = Variable(labels_[:,0]).cuda(gpu)
+        #         label_pitch_ = Variable(labels_[:,1]).cuda(gpu)
+        #         label_roll_ = Variable(labels_[:,2]).cuda(gpu)
+        #
+        #         # Continuous labels
+        #         label_yaw_cont_ = Variable(cont_labels_[:,0]).cuda(gpu)
+        #         label_pitch_cont_ = Variable(cont_labels_[:,1]).cuda(gpu)
+        #         label_roll_cont_ = Variable(cont_labels_[:,2]).cuda(gpu)
+        #
+        #         # Forward pass
+        #         yaw_, pitch_, roll_ = model(images_)
+        #
+        #         # Cross entropy loss
+        #         loss_yaw_ = criterion(yaw_, label_yaw_)
+        #         loss_pitch_ = criterion(pitch_, label_pitch_)
+        #         loss_roll_ = criterion(roll_, label_roll_)
+        #
+        #         # MSE loss
+        #         yaw_predicted_ = softmax(yaw_)
+        #         pitch_predicted_ = softmax(pitch_)
+        #         roll_predicted_ = softmax(roll_)
+        #
+        #         yaw_predicted_ = torch.sum(yaw_predicted_ * idx_tensor_, 1) * 3 - 99
+        #         pitch_predicted_ = torch.sum(pitch_predicted_ * idx_tensor_, 1) * 3 - 99
+        #         roll_predicted_ = torch.sum(roll_predicted_ * idx_tensor_, 1) * 3 - 99
+        #
+        #         loss_reg_yaw_ = reg_criterion(yaw_predicted_, label_yaw_cont_)
+        #         loss_reg_pitch_ = reg_criterion(pitch_predicted_, label_pitch_cont_)
+        #         loss_reg_roll_ = reg_criterion(roll_predicted_, label_roll_cont_)
+        #
+        #         # Total loss
+        #         loss_yaw_ += alpha * loss_reg_yaw_
+        #         loss_pitch_ += alpha * loss_reg_pitch_
+        #         loss_roll_ += alpha * loss_reg_roll_
+        #
+        #         if (i+1) % 100 == 0:
+        #             print ('Epoch Validation Loss: [%d/%d], Iter [%d/%d] Losses: Yaw %.4f, Pitch %.4f, Roll %.4f'
+        #                    %(epoch+1,
+        #                      num_epochs,
+        #                      i+1,
+        #                      len(pose_dataset_validation)//1,
+        #                      loss_yaw_.item(),
+        #                      loss_pitch_.item(),
+        #                      loss_roll_.item()))
+        #
+        #             if not os.path.isdir(hopenet_config.output_dir):
+        #                 os.mkdir(hopenet_config.output_dir)
+        #             frame_ = images_[0]
+        #
+        #             def rpy2xyz(r, p, y):
+        #                 r = R.from_euler('zxy', (r, -p, y), degrees=True)
+        #                 return r.as_rotvec()
+        #
+        #             x_, y_, z_ = rpy2xyz(roll_predicted_.item(), pitch_predicted_.item(), yaw_predicted_.item())
+        #
+        #             is_plot_rvec = True
+        #             # frame_cpu = frame_.cpu().numpy().swapaxes(0, 1).swapaxes(1, 2)
+        #             # frame_cpu_normed = (frame_cpu - frame_cpu.min()) / (frame_cpu.max() - frame_cpu.min())
+        #             frame_cpu_normed = cv2.cvtColor(original, cv2.COLOR_BGR2RGB)
+        #
+        #             frame_cpu_normed = 255 * (frame_cpu_normed - frame_cpu_normed .min()) / (frame_cpu_normed .max() - frame_cpu_normed .min())
+        #             frame_cpu_normed = np.array(frame_cpu_normed, np.int)
+        #
+        #             frame_cpu_tagged = utils.draw_axis_rotvec(frame_cpu_normed, x_, y_, z_)
+        #
+        #
+        #
+        #             file_name = os.path.join(hopenet_config.output_dir, "_".join(name_[0].split('\\'))) + f"epoch_{epoch}" + '.jpg'
+        #             # cv2.imshow("process", frame_cpu_normed)
+        #             # cv2.waitKey(0)
+        #             cv2.imwrite(filename=file_name, img=frame_cpu_tagged)
+        #             hi = 5
 
