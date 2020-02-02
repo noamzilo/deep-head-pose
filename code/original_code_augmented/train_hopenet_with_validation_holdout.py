@@ -124,7 +124,7 @@ if __name__ == '__main__':
     train_loader = torch.utils.data.DataLoader(dataset=pose_dataset,
                                                batch_size=batch_size,
                                                shuffle=True,
-                                               num_workers=2)
+                                               num_workers=4)
     validation_loader = torch.utils.data.DataLoader(dataset=pose_dataset_validation,
                                                batch_size=1,
                                                shuffle=True,
