@@ -18,6 +18,12 @@ import torch.utils.model_zoo as model_zoo
 
 def parse_args():
     """Parse input arguments."""
+    rel_files_path_linux = r"/home/noams/hopenet/deep-head-pose/code/Data/Training/rel_paths_filtered.txt"
+    rel_files_windows = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\big_set\300W_LP\rel_paths_filtered.txt"
+
+    data_folder_linux = r"/home/noams/hopenet/deep-head-pose/code/Data/Training/300W_LP"
+    data_folder_windows = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\big_set\300W_LP"
+    
     parser = argparse.ArgumentParser(description='Head pose estimation using the Hopenet network.')
     parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
                         default=0, type=int)
@@ -29,9 +35,9 @@ def parse_args():
                         default=0.00001, type=float)
     parser.add_argument('--dataset', dest='dataset', help='Dataset type.', default='Pose_300W_LP', type=str)
     parser.add_argument('--data_dir', dest='data_dir', help='Directory path for data.',
-                        default=r'C:\Noam\Code\vision_course\downloads\datasets\300W-LP\big_set\300W_LP', type=str)
+                        default=data_folder_linux, type=str)
     parser.add_argument('--filename_list', dest='filename_list', help='Path to text file containing relative paths for every example.',
-                        default=r'C:\Noam\Code\vision_course\downloads\datasets\300W-LP\big_set\300W_LP\rel_paths_filtered.txt', type=str)
+                        default=rel_files_path_linux, type=str)
     parser.add_argument('--output_string', dest='output_string', help='String appended to output snapshots.', default = 'original_train', type=str)
     parser.add_argument('--alpha', dest='alpha', help='Regression loss coefficient.',
                         default=0.001, type=float)
