@@ -41,10 +41,11 @@ def filter_images_by_angle(images_dir, rel_paths_file_name, out_file_name):
 
 if __name__ == "__main__":
     def main():
-        rel_paths_dir = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\big_set\300W_LP"
+        rel_paths_dir_windows = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\big_set\300W_LP"
+        rel_paths_dir_linux = r"/home/noams/hopenet/deep-head-pose/code/Data/Training/300W_LP"
         file_name = r"rel_paths.txt"
         out_file_name = r"rel_paths_filtered.txt"
 
-        filter_images_by_angle(rel_paths_dir, file_name, out_file_name)
+        filter_images_by_angle(rel_paths_dir_linux, file_name, out_file_name)
 
     main()
