@@ -23,7 +23,7 @@ def parse_args():
 
     data_folder_linux = r"/home/noams/hopenet/deep-head-pose/code/Data/Training/300W_LP"
     data_folder_windows = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\big_set\300W_LP"
-    
+
     parser = argparse.ArgumentParser(description='Head pose estimation using the Hopenet network.')
     parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
                         default=0, type=int)
