@@ -27,7 +27,7 @@ def filter_images_by_angle(images_dir, rel_paths_file_name, out_file_name):
         if image_name == last_image_name:
             continue
         if i % 200 == 0:
-            print(f"Procedding .mat #{i}")
+            print(f"Procedding .mat #{i}/{len(image_names)}")
         image_full_path = os.path.join(images_dir, image_name)
         mat_path = image_full_path + ".mat"
         pose = np.rad2deg(get_pose_params_from_mat(mat_path)[0:3])
