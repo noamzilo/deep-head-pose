@@ -20,21 +20,21 @@ def parse_args():
     """Parse input arguments."""
     parser = argparse.ArgumentParser(description='Head pose estimation using the Hopenet network.')
     parser.add_argument('--gpu', dest='gpu_id', help='GPU device id to use [0]',
-            default=0, type=int)
+                        default=0, type=int)
     parser.add_argument('--num_epochs', dest='num_epochs', help='Maximum number of training epochs.',
-          default=5, type=int)
+                        default=30, type=int)
     parser.add_argument('--batch_size', dest='batch_size', help='Batch size.',
-          default=16, type=int)
+                        default=16, type=int)
     parser.add_argument('--lr', dest='lr', help='Base learning rate.',
-          default=0.00001, type=float)
+                        default=0.00001, type=float)
     parser.add_argument('--dataset', dest='dataset', help='Dataset type.', default='Pose_300W_LP', type=str)
     parser.add_argument('--data_dir', dest='data_dir', help='Directory path for data.',
-          default=r'C:\Noam\Code\vision_course\downloads\datasets\300W-LP\big_set\300W_LP', type=str)
+                        default=r'C:\Noam\Code\vision_course\downloads\datasets\300W-LP\big_set\300W_LP', type=str)
     parser.add_argument('--filename_list', dest='filename_list', help='Path to text file containing relative paths for every example.',
-          default=r'C:\Noam\Code\vision_course\downloads\datasets\300W-LP\big_set\300W_LP\rel_paths.txt', type=str)
+                        default=r'C:\Noam\Code\vision_course\downloads\datasets\300W-LP\big_set\300W_LP\rel_paths_filtered.txt', type=str)
     parser.add_argument('--output_string', dest='output_string', help='String appended to output snapshots.', default = 'original_train', type=str)
     parser.add_argument('--alpha', dest='alpha', help='Regression loss coefficient.',
-          default=0.001, type=float)
+                        default=0.001, type=float)
     parser.add_argument('--snapshot', dest='snapshot', help='Path of model snapshot.',
           default='', type=str)
 
@@ -176,9 +176,12 @@ if __name__ == '__main__':
             pitch_predicted = torch.sum(pitch_predicted * idx_tensor, 1) * 3 - 99
             roll_predicted = torch.sum(roll_predicted * idx_tensor, 1) * 3 - 99
 
-            loss_reg_yaw = reg_criterion(yaw_predicted, label_yaw_cont)
-            loss_reg_pitch = reg_criterion(pitch_predicted, label_pitch_cont)
-            loss_reg_roll = reg_criterion(roll_predicted, label_roll_cont)
+            try:
+                loss_reg_yaw = reg_criterion(yaw_predicted, label_yaw_cont)
+                loss_reg_pitch = reg_criterion(pitch_predicted, label_pitch_cont)
+                loss_reg_roll = reg_criterion(roll_predicted, label_roll_cont)
+            except:
+                hi=5
 
             # Total loss
             loss_yaw += alpha * loss_reg_yaw
@@ -193,7 +196,7 @@ if __name__ == '__main__':
 
             if (i+1) % 100 == 0:
                 print ('Epoch [%d/%d], Iter [%d/%d] Losses: Yaw %.4f, Pitch %.4f, Roll %.4f'
-                       %(epoch+1, num_epochs, i+1, len(pose_dataset)//batch_size, loss_yaw.data[0], loss_pitch.data[0], loss_roll.data[0]))
+                       %(epoch+1, num_epochs, i+1, len(pose_dataset)//batch_size, loss_yaw.item(), loss_pitch.item(), loss_roll.item()))
 
         # Save models at numbered epochs.
         if epoch % 1 == 0 and epoch < num_epochs:
