@@ -15,7 +15,7 @@ def get_pose_params_from_mat(mat_path):
 
 def filter_images_by_angle(images_dir, rel_paths_file_name, out_file_name):
     print(f"trying to read from {images_dir}")
-    
+
     file_path = os.path.join(images_dir, rel_paths_file_name)
     with open(file_path) as f:
         image_names = [line.rstrip() for line in f]
@@ -29,7 +29,7 @@ def filter_images_by_angle(images_dir, rel_paths_file_name, out_file_name):
         image_full_path = os.path.join(images_dir, image_name)
         mat_path = image_full_path + ".mat"
         pose = np.rad2deg(get_pose_params_from_mat(mat_path)[0:3])
-        if np.abs(np.max(pose[0:3])) < 98:
+        if np.abs(np.max(pose[0:3])) < 90:
             poses.append(pose[0:3])
             filtered.append(image_name)
         last_image_name = image_name
