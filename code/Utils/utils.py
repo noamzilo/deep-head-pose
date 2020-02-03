@@ -121,5 +121,5 @@ def draw_axis(img, yaw, pitch, roll, tdx=None, tdy=None, size = 100):
 def draw_axis_rotvec(img, rx, ry, rz, tdx=None, tdy=None, size=100):
     r = R.from_rotvec([rx, ry, rz])
     r, p, y = r.as_euler('zxy', degrees=True)
-    draw_axis(img, y, p, r, tdx=tdx, tdy=tdy, size=size)
+    img = draw_axis(img, y, p, r, tdx=tdx, tdy=tdy, size=size)
     return img
