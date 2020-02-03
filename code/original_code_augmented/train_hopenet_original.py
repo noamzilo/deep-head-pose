@@ -13,7 +13,7 @@ import torchvision
 import torch.backends.cudnn as cudnn
 import torch.nn.functional as F
 
-from original_code_augmented import datasets, hopenet
+from . import datasets, hopenet
 import torch.utils.model_zoo as model_zoo
 
 def parse_args():
