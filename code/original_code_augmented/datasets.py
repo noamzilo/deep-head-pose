@@ -9,6 +9,7 @@ from PIL import Image, ImageFilter
 
 from Utils import utils
 import random
+import posixpath
 
 
 def get_list_from_filenames(file_path):
@@ -116,7 +117,8 @@ class Pose_300W_LP(Dataset):
         # self.length = len(filename_list)
 
     def __getitem__(self, index):
-        path = os.path.join(self.data_dir, self.X_train[index] + self.img_ext).replace(r"\\", "/")
+        path = os.path.join(self.data_dir, self.X_train[index] + self.img_ext).replace(r"\\", r"/")
+        path = posixpath.join(*path.split('\\'))
         print(path)
         img = Image.open(path)
         img = img.convert(self.image_mode)
