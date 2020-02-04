@@ -117,6 +117,7 @@ class Pose_300W_LP(Dataset):
         # self.length = len(filename_list)
 
     def __getitem__(self, index):
+        #NOAM
         path = os.path.join(self.data_dir, self.X_train[index] + self.img_ext)
         print(f"path: {path}")
         path = posixpath.join(*path.split('\\'))
