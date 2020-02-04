@@ -117,6 +117,7 @@ class Pose_300W_LP(Dataset):
 
     def __getitem__(self, index):
         path = os.path.join(self.data_dir, self.X_train[index] + self.img_ext).replace(r"\\", "/")
+        print(path)
         print(f"processing path: {path}")
         img = Image.open(path)
         img = img.convert(self.image_mode)
