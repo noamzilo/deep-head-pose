@@ -187,6 +187,7 @@ class Pose_300W_LP_random_ds(Dataset):
         self.length = len(filename_list)
 
     def __getitem__(self, index):
+        self.X_train[index] = self.X_train[index].replace(r"\\", "/")
         img = Image.open(os.path.join(self.data_dir, self.X_train[index] + self.img_ext))
         img = img.convert(self.image_mode)
         mat_path = os.path.join(self.data_dir, self.y_train[index] + self.annot_ext)
