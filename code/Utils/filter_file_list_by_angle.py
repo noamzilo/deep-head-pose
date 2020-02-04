@@ -27,11 +27,11 @@ def filter_images_by_angle(images_dir, rel_paths_file_name, out_file_name):
         if image_name == last_image_name:
             continue
         if i % 200 == 0:
-            print(f"Procedding .mat #{i}/{len(image_names)}")
+            print(f"Processing .mat #{i}/{len(image_names)}")
         image_full_path = os.path.join(images_dir, image_name)
         mat_path = image_full_path + ".mat"
         pose = np.rad2deg(get_pose_params_from_mat(mat_path)[0:3])
-        if np.abs(np.max(pose[0:3])) < 90:
+        if np.max(np.abs(pose[0:3])) < 99:
             poses.append(pose[0:3])
             filtered.append(image_name)
         last_image_name = image_name
@@ -53,5 +53,6 @@ if __name__ == "__main__":
         out_file_name = r"rel_paths_filtered.txt"
 
         filter_images_by_angle(rel_paths_dir_linux, file_name, out_file_name)
+        # filter_images_by_angle(rel_paths_dir_windows, file_name, out_file_name)
 
     main()
