@@ -117,7 +117,6 @@ class Pose_300W_LP(Dataset):
 
     def __getitem__(self, index):
         path = os.path.join(self.data_dir, self.X_train[index] + self.img_ext).replace(r"\\", "/")
-        print(f"processing path: {path}")
         img = Image.open(path)
         img = img.convert(self.image_mode)
         mat_path = os.path.join(self.data_dir, self.y_train[index] + self.annot_ext)
@@ -190,7 +189,6 @@ class Pose_300W_LP_random_ds(Dataset):
 
     def __getitem__(self, index):
         path = os.path.join(self.data_dir, self.X_train[index] + self.img_ext).replace(r"\\", "/")
-        print(f"processing path: {path}")
         img = Image.open(path)
         img = img.convert(self.image_mode)
         mat_path = os.path.join(self.data_dir, self.y_train[index] + self.annot_ext)
