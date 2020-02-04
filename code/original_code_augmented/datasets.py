@@ -119,12 +119,11 @@ class Pose_300W_LP(Dataset):
     def __getitem__(self, index):
         #NOAM
         path = os.path.join(self.data_dir, self.X_train[index] + self.img_ext)
-        print(f"path: {path}")
         path = posixpath.join(*path.split('\\'))
-        print(f"path: {path}")
         img = Image.open(path)
         img = img.convert(self.image_mode)
         mat_path = os.path.join(self.data_dir, self.y_train[index] + self.annot_ext)
+        mat_path = posixpath.join(*mat_path.split('\\'))
 
         # Crop the face loosely
         pt2d = utils.get_pt2d_from_mat(mat_path)
