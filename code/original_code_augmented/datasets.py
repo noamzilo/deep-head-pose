@@ -117,9 +117,10 @@ class Pose_300W_LP(Dataset):
         # self.length = len(filename_list)
 
     def __getitem__(self, index):
-        path = os.path.join(self.data_dir, self.X_train[index] + self.img_ext).replace(r"\\", r"/")
+        path = os.path.join(self.data_dir, self.X_train[index] + self.img_ext)
+        print(f"path: {path}")
         path = posixpath.join(*path.split('\\'))
-        print(path)
+        print(f"path: {path}")
         img = Image.open(path)
         img = img.convert(self.image_mode)
         mat_path = os.path.join(self.data_dir, self.y_train[index] + self.annot_ext)
