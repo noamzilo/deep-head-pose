@@ -16,13 +16,13 @@ import torch.nn.functional as F
 if __name__ == "__main__":
     import datasets, hopenet
 else:
-    from . import datasets, hopenet
+    from original_code_augmented import datasets, hopenet
 import torch.utils.model_zoo as model_zoo
 
 def parse_args():
     """Parse input arguments."""
     rel_files_path_linux = r"/home/noams/hopenet/deep-head-pose/code/Data/Training/rel_paths_filtered.txt"
-    rel_files_windows = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\big_set\300W_LP\rel_paths_filtered.txt"
+    rel_files_path_windows = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\big_set\300W_LP\rel_paths_filtered.txt"
 
     data_folder_linux = r"/home/noams/hopenet/deep-head-pose/code/Data/Training/300W_LP"
     data_folder_windows = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\big_set\300W_LP"
@@ -37,10 +37,14 @@ def parse_args():
     parser.add_argument('--lr', dest='lr', help='Base learning rate.',
                         default=0.00001, type=float)
     parser.add_argument('--dataset', dest='dataset', help='Dataset type.', default='Pose_300W_LP', type=str)
+    # parser.add_argument('--data_dir', dest='data_dir', help='Directory path for data.',
+    #                     default=data_folder_linux, type=str)
     parser.add_argument('--data_dir', dest='data_dir', help='Directory path for data.',
-                        default=data_folder_linux, type=str)
+                        default=data_folder_windows, type=str)
+    # parser.add_argument('--filename_list', dest='filename_list', help='Path to text file containing relative paths for every example.',
+    #                     default=rel_files_path_linux, type=str)
     parser.add_argument('--filename_list', dest='filename_list', help='Path to text file containing relative paths for every example.',
-                        default=rel_files_path_linux, type=str)
+                        default=rel_files_path_windows, type=str)
     parser.add_argument('--output_string', dest='output_string', help='String appended to output snapshots.', default = 'original_train', type=str)
     parser.add_argument('--alpha', dest='alpha', help='Regression loss coefficient.',
                         default=0.001, type=float)
@@ -107,7 +111,7 @@ if __name__ == '__main__':
 
     print('Loading data.')
 
-    transformations = transforms.Compose([transforms.Scale(240),
+    transformations = transforms.Compose([transforms.Resize(240),
     transforms.RandomCrop(224), transforms.ToTensor(),
     transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])])
 
@@ -154,6 +158,7 @@ if __name__ == '__main__':
     print('Ready to train network.')
     for epoch in range(num_epochs):
         for i, (images, labels, cont_labels, name) in enumerate(train_loader):
+            assert torch.max(cont_labels) < 99
             if i % 20 == 0:
                 print(f"epoch {epoch}, i={i}")
             images = Variable(images).cuda(gpu)
@@ -185,12 +190,9 @@ if __name__ == '__main__':
             pitch_predicted = torch.sum(pitch_predicted * idx_tensor, 1) * 3 - 99
             roll_predicted = torch.sum(roll_predicted * idx_tensor, 1) * 3 - 99
 
-            try:
-                loss_reg_yaw = reg_criterion(yaw_predicted, label_yaw_cont)
-                loss_reg_pitch = reg_criterion(pitch_predicted, label_pitch_cont)
-                loss_reg_roll = reg_criterion(roll_predicted, label_roll_cont)
-            except:
-                hi=5
+            loss_reg_yaw = reg_criterion(yaw_predicted, label_yaw_cont)
+            loss_reg_pitch = reg_criterion(pitch_predicted, label_pitch_cont)
+            loss_reg_roll = reg_criterion(roll_predicted, label_roll_cont)
 
             # Total loss
             loss_yaw += alpha * loss_reg_yaw
