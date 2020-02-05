@@ -13,6 +13,8 @@ def file_names_in_tree_root(treeroot, create_file_dir, file_name):
     last_path = None
     for filename in glob.iglob(treeroot + '**/**', recursive=True):
         if os.path.isfile(os.path.join(treeroot, filename)):
+            if not (filename.endswith(".jpg") or filename.endswith(".mat")):
+                continue
             new_path = relpath(filename.split('.')[0], treeroot)
             if last_path == new_path:
                 continue
