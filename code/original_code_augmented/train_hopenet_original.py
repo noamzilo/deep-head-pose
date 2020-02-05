@@ -158,7 +158,7 @@ if __name__ == '__main__':
     print('Ready to train network.')
     for epoch in range(num_epochs):
         for i, (images, labels, cont_labels, name) in enumerate(train_loader):
-            assert torch.max(cont_labels) < 99
+            assert torch.max(torch.abs(cont_labels)) < 99
             if i % 20 == 0:
                 print(f"epoch {epoch}, i={i}")
             images = Variable(images).cuda(gpu)
