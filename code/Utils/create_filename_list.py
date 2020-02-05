@@ -16,6 +16,7 @@ def file_names_in_tree_root(treeroot, create_file_dir, file_name):
             if not (filename.endswith(".jpg") or filename.endswith(".mat")):
                 continue
             new_path = relpath(filename.split('.')[0], treeroot)
+            print(f"new: {new_path} \t\t olf: {last_path} \n")
             if last_path == new_path:
                 continue
                 print("ssss")
