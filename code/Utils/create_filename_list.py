@@ -18,10 +18,12 @@ def file_names_in_tree_root(treeroot, create_file_dir, file_name):
             new_path = relpath(filename.split('.')[0], treeroot)
             if last_path == new_path:
                 continue
+                print("ssss")
             paths.append(new_path)
             last_path = new_path
 
     paths = sorted(paths)
+    print(f"number of files found: {len(paths)}")
 
     with open(file_path, 'w') as f:
         for path in paths:
