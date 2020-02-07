@@ -37,14 +37,14 @@ def parse_args():
     parser.add_argument('--lr', dest='lr', help='Base learning rate.',
                         default=0.00001, type=float)
     parser.add_argument('--dataset', dest='dataset', help='Dataset type.', default='Pose_300W_LP', type=str)
+    # parser.add_argument('--data_dir', dest='data_dir', help='Directory path for data.',
+    #                      default=data_folder_linux, type=str)
     parser.add_argument('--data_dir', dest='data_dir', help='Directory path for data.',
-                         default=data_folder_linux, type=str)
-    #parser.add_argument('--data_dir', dest='data_dir', help='Directory path for data.',
-    #                    default=data_folder_windows, type=str)
+                       default=data_folder_windows, type=str)
+    # parser.add_argument('--filename_list', dest='filename_list', help='Path to text file containing relative paths for every example.',
+    #                     default=rel_files_path_linux, type=str)
     parser.add_argument('--filename_list', dest='filename_list', help='Path to text file containing relative paths for every example.',
-                        default=rel_files_path_linux, type=str)
-    #parser.add_argument('--filename_list', dest='filename_list', help='Path to text file containing relative paths for every example.',
-    #                    default=rel_files_path_windows, type=str)
+                       default=rel_files_path_windows, type=str)
     parser.add_argument('--output_string', dest='output_string', help='String appended to output snapshots.', default = 'original_train', type=str)
     parser.add_argument('--alpha', dest='alpha', help='Regression loss coefficient.',
                         default=0.001, type=float)
