@@ -1,0 +1,22 @@
+test_images_folder1_path: C:\Noam\Code\vision_course\hopenet\input\validation_combined\images1
+test_images_folder2_path: C:\Noam\Code\vision_course\hopenet\input\validation_combined\images2
+create_rel_paths_file_at: C:\Noam\Code\vision_course\hopenet\input\validation_combined
+
+valid_set1_csv_path: C:\Noam\Code\vision_course\hopenet\input\validation_combined\valid_set1.csv
+valid_set2_csv_path: C:\Noam\Code\vision_course\hopenet\input\validation_combined\valid_set2.csv
+
+rel_paths1: C:\Noam\Code\vision_course\hopenet\input\validation_combined\rel_paths1.txt
+rel_paths2: C:\Noam\Code\vision_course\hopenet\input\validation_combined\rel_paths2.txt
+
+face_detector_path: C:\Noam\Code\vision_course\hopenet\models\mmod_human_face_detector.dat # dlib's face predictor
+is_using_opencv_face_detector: False
+
+output_dir: C:\Noam\Code\vision_course\hopenet\output
+output_file_name1: output1.csv
+output_file_name2: output2.csv
+
+snapshot_path: C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\original_code_augmented\output\cloud_snapshots\original_train_epoch_25.pkl
+
+
+gpu_id: 0
+scale_percent: 100
