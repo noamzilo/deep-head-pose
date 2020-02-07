@@ -12,10 +12,10 @@ import csv
 from Utils.path_utils import path_leaf
 
 
-def compare(self):
-    pd.testing.assert_frame_equal(self._ground_files_df[['file name']], self._results_files_df[['file name']])
-    expected = self._ground_truth
-    actual = self._results
+def compare(ground_df, results_df):
+    pd.testing.assert_frame_equal(ground_df[['file name']], results_df[['file name']])
+    expected = ground_df[['rx', 'ry', 'rz']]
+    actual = results_df[['rx', 'ry', 'rz']]
 
     angles = []
     for (i, row_actual), (_, row_expected) in zip(actual.iterrows(), expected.iterrows()):
@@ -53,22 +53,17 @@ if __name__ == "__main__":
         images_folder_path1 = config.test_images_folder1_path
         images_folder_path2 = config.test_images_folder2_path
 
-        valid_truth1 = pd.read_csv(config.valid_set1_csv_path,
-                                  sep=r'\s*,\s*',
-                                  header=0,
-                                  encoding='ascii',
-                                  engine='python')[['file name', 'rx', 'ry', 'rz']]
-        valid_truth2 = pd.read_csv(config.valid_set2_csv_path,
+        valid_set_1_csv_path = config.valid_set1_csv_path
+
+        valid_truth1 = pd.read_csv(valid_set_1_csv_path,
                                   sep=r'\s*,\s*',
                                   header=0,
                                   encoding='ascii',
                                   engine='python')[['file name', 'rx', 'ry', 'rz']]
 
         abs_paths1 = [os.path.join(images_folder_path1, path) for path in valid_truth1['file name']]
-        abs_paths2 = [os.path.join(images_folder_path2, path) for path in valid_truth2['file name']]
 
-        images_full_paths = abs_paths1 + abs_paths2
-        for p in images_full_paths:
+        for p in abs_paths1:
             assert os.path.isfile(p)
 
         hopenet_estimator = HopenetEstimatorImages(config,
@@ -76,10 +71,45 @@ if __name__ == "__main__":
                                                    abs_paths1,
                                                    )
 
-        results = hopenet_estimator.calculate_results()
-        write_results_to_csv(results, config.output_dir, config.output_file_name1)
+        results1 = hopenet_estimator.calculate_results()
+        write_results_to_csv(results1, config.output_dir, config.output_file_name1)
+        results1_path = os.path.join(config.output_dir, config.output_file_name1)
+        results1_df = pd.read_csv(results1_path,
+                                  sep=r'\s*,\s*',
+                                  header=0,
+                                  encoding='ascii',
+                                  engine='python')[['file name', 'rx', 'ry', 'rz']]
 
-        comparer = CompareOutputToGround(config, config, config)
-        comparer.compare()
+        compare(valid_truth1, results1_df)
+
+
+        ######################################################################################################
+
+        valid_set_2_csv_path = config.valid_set2_csv_path
+        valid_truth2 = pd.read_csv(valid_set_2_csv_path,
+                                   sep=r'\s*,\s*',
+                                   header=0,
+                                   encoding='ascii',
+                                   engine='python')[['file name', 'rx', 'ry', 'rz']]
+        abs_paths2 = [os.path.join(images_folder_path2, path) for path in valid_truth2['file name']]
+        for p in abs_paths2:
+            assert os.path.isfile(p)
+
+        hopenet_estimator = HopenetEstimatorImages(config,
+                                                   config,
+                                                   abs_paths2,
+                                                   )
+
+        results2 = hopenet_estimator.calculate_results()
+        write_results_to_csv(results2, config.output_dir, config.output_file_name2)
+        results2_path = os.path.join(config.output_dir, config.output_file_name2)
+        results2_df = pd.read_csv(results2_path,
+                                  sep=r'\s*,\s*',
+                                  header=0,
+                                  encoding='ascii',
+                                  engine='python')[['file name', 'rx', 'ry', 'rz']]
+
+        compare(valid_truth2, results2_df)
+
 
     main()

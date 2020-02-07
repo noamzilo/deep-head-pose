@@ -1,3 +1,4 @@
+do not want to train anymore.
 import sys, os, argparse, time
 
 import numpy as np
