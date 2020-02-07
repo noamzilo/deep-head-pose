@@ -21,7 +21,7 @@ import torch.utils.model_zoo as model_zoo
 
 def parse_args():
     """Parse input arguments."""
-    rel_files_path_linux = r"/home/noams/hopenet/deep-head-pose/code/Data/Training/rel_paths_filtered.txt"
+    rel_files_path_linux = r"/home/noams/hopenet/deep-head-pose/code/Data/Training/300W_LP/rel_paths_filtered.txt"
     rel_files_path_windows = r"C:\Noam\Code\vision_course\downloads\datasets\300W-LP\big_set\300W_LP\rel_paths_filtered.txt"
 
     data_folder_linux = r"/home/noams/hopenet/deep-head-pose/code/Data/Training/300W_LP"
@@ -158,7 +158,7 @@ if __name__ == '__main__':
     print('Ready to train network.')
     for epoch in range(num_epochs):
         for i, (images, labels, cont_labels, name) in enumerate(train_loader):
-            assert torch.max(cont_labels) < 99
+            assert torch.max(torch.abs(cont_labels)) < 99
             if i % 20 == 0:
                 print(f"epoch {epoch}, i={i}")
             images = Variable(images).cuda(gpu)
