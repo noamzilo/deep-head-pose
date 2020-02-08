@@ -4,9 +4,9 @@ test_data_dir_path: C:\Noam\Code\vision_course\downloads\datasets\300W-LP\300W-3
 file_name_list: C:\Noam\Code\vision_course\downloads\datasets\300W-LP\rel_paths.txt
 #snapshot_path: C:\Noam\Code\vision_course\hopenet\models\hopenet_robust_alpha1.pkl
 #snapshot_path:  C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\original_code_augmented\output\snapshots\output_epoch_1.pkl
-snapshot_path:  C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\original_code_augmented\output\snapshots\original_train_epoch_25.pkl
+#snapshot_path:  C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\original_code_augmented\output\snapshots\original_train_epoch_25.pkl
 #snapshot_path: C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\original_code_augmented\output\cloud_snapshots\original_train_epoch_30.pkl
-
+snapshot_path:  selected_model.pkl
 
 batch_size_test: 1
 batch_size_train: 16
