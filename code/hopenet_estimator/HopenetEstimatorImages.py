@@ -1,26 +1,16 @@
 import numpy as np
-from test_on_validation.validation_requirements import ThreeD_Model
-import cv2
-from test_on_validation.validation_requirements.ValidationSetLoader import ValidationSetLoader
-from Utils.yaml_utils.ConfigParser import ConfigParser
-from test_on_validation.Validator import Validator
-import sys
 import os
-import argparse
 
 import cv2
 
 import torch
 from torch.autograd import Variable
-from torch.utils.data import DataLoader
 from torchvision import transforms
 import torch.backends.cudnn as cudnn
 import torchvision
 
 from Utils import utils
-from Utils.create_filename_list import file_names_in_tree_root
 from original_code_augmented import hopenet
-from original_code_augmented import datasets
 
 import torch.nn.functional as F
 from PIL import Image
