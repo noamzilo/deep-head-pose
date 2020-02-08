@@ -16,8 +16,8 @@ output_file_name1: output1.csv
 output_file_name2: output2.csv
 
 #snapshot_path: C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\original_code_augmented\output\cloud_snapshots\original_train_epoch_25.pkl
-#snapshots_folder: C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\original_code_augmented\output\snapshots
-snapshots_folder: C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\original_code_augmented\output\cloud_snapshots
+snapshots_folder: C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\original_code_augmented\output\snapshots
+#snapshots_folder: C:\Noam\Code\vision_course\hopenet\deep-head-pose\code\original_code_augmented\output\cloud_snapshots
 snapshot_name: original_train_epoch_
 
 

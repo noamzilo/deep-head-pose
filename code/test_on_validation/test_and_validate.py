@@ -57,7 +57,8 @@ if __name__ == "__main__":
         # snapshot_path = config.snapshot_path
         means = []
         maxes = []
-        for snapshot_num in range(1, 30):
+        # for snapshot_num in range(1, 30):
+        for snapshot_num in range(1, 26):
             snapshot_path = os.path.join(snapshot_folder, snapshot_name + f"{snapshot_num}.pkl")
 
             images_folder_path1 = config.test_images_folder1_path
@@ -137,7 +138,7 @@ if __name__ == "__main__":
         print(f"best max epoch: {best_max_epoch} with max: {maxes[best_max_epoch]}")
         print(f"best max epoch: {best_mean_epoch} with mean: {means[best_mean_epoch]}")
 
-        validation_error_per_epoch_file_name = "validation_error_per_epoch.csv"
+        validation_error_per_epoch_file_name = "validation_error_per_epoch_cloud.csv"
         with open(validation_error_per_epoch_file_name, "w", newline='') as csv_file:
             writer = csv.writer(csv_file, delimiter=',')
             for i, (mean, mx) in enumerate(zip(means, maxes)):
