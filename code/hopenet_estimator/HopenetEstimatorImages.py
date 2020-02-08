@@ -47,7 +47,7 @@ class HopenetEstimatorImages(object):
         cudnn.enabled = True
         self._gpu_id = args.gpu_id
 
-        snapshot_path = args.snapshot_path
+        snapshot_path = self._snapshot_path
         out_dir = args.output_dir
         if not os.path.exists(out_dir):
             os.makedirs(out_dir)

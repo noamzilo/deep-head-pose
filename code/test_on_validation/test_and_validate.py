@@ -57,77 +57,87 @@ if __name__ == "__main__":
         snapshot_folder = config.snapshots_folder
         snapshot_name = config.snapshot_name
         # snapshot_path = config.snapshot_path
-        snapshot_num = 25
-        snapshot_path = os.path.join(snapshot_folder, snapshot_name + f"{snapshot_num}.pkl")
+        means = []
+        maxes = []
+        for snapshot_num in range(1, 25 + 1):
+            snapshot_path = os.path.join(snapshot_folder, snapshot_name + f"{snapshot_num}.pkl")
 
-        images_folder_path1 = config.test_images_folder1_path
-        images_folder_path2 = config.test_images_folder2_path
+            images_folder_path1 = config.test_images_folder1_path
+            images_folder_path2 = config.test_images_folder2_path
 
-        valid_set_1_csv_path = config.valid_set1_csv_path
+            valid_set_1_csv_path = config.valid_set1_csv_path
 
-        valid_truth1 = pd.read_csv(valid_set_1_csv_path,
-                                  sep=r'\s*,\s*',
-                                  header=0,
-                                  encoding='ascii',
-                                  engine='python')[['file name', 'rx', 'ry', 'rz']]
+            valid_truth1 = pd.read_csv(valid_set_1_csv_path,
+                                      sep=r'\s*,\s*',
+                                      header=0,
+                                      encoding='ascii',
+                                      engine='python')[['file name', 'rx', 'ry', 'rz']]
 
-        abs_paths1 = [os.path.join(images_folder_path1, path) for path in valid_truth1['file name']]
+            abs_paths1 = [os.path.join(images_folder_path1, path) for path in valid_truth1['file name']]
 
-        for p in abs_paths1:
-            assert os.path.isfile(p)
+            for p in abs_paths1:
+                assert os.path.isfile(p)
 
-        hopenet_estimator = HopenetEstimatorImages(config,
-                                                   config,
-                                                   abs_paths1,
-                                                   snapshot_path)
+            hopenet_estimator = HopenetEstimatorImages(config,
+                                                       config,
+                                                       abs_paths1,
+                                                       snapshot_path)
 
-        results1 = hopenet_estimator.calculate_results()
-        write_results_to_csv(results1, config.output_dir, config.output_file_name1)
-        results1_path = os.path.join(config.output_dir, config.output_file_name1)
-        results1_df = pd.read_csv(results1_path,
-                                  sep=r'\s*,\s*',
-                                  header=0,
-                                  encoding='ascii',
-                                  engine='python')[['file name', 'rx', 'ry', 'rz']]
+            results1 = hopenet_estimator.calculate_results()
+            write_results_to_csv(results1, config.output_dir, config.output_file_name1)
+            results1_path = os.path.join(config.output_dir, config.output_file_name1)
+            results1_df = pd.read_csv(results1_path,
+                                      sep=r'\s*,\s*',
+                                      header=0,
+                                      encoding='ascii',
+                                      engine='python')[['file name', 'rx', 'ry', 'rz']]
 
-        angles1, angles_max1, angles_argmax1, angles_mean1 = compare(valid_truth1, results1_df)
-
-
-        ######################################################################################################
-
-        valid_set_2_csv_path = config.valid_set2_csv_path
-        valid_truth2 = pd.read_csv(valid_set_2_csv_path,
-                                   sep=r'\s*,\s*',
-                                   header=0,
-                                   encoding='ascii',
-                                   engine='python')[['file name', 'rx', 'ry', 'rz']]
-        abs_paths2 = [os.path.join(images_folder_path2, path) for path in valid_truth2['file name']]
-        for p in abs_paths2:
-            assert os.path.isfile(p)
-
-        hopenet_estimator = HopenetEstimatorImages(config,
-                                                   config,
-                                                   abs_paths2,
-                                                   snapshot_path)
-
-        results2 = hopenet_estimator.calculate_results()
-        write_results_to_csv(results2, config.output_dir, config.output_file_name2)
-        results2_path = os.path.join(config.output_dir, config.output_file_name2)
-        results2_df = pd.read_csv(results2_path,
-                                  sep=r'\s*,\s*',
-                                  header=0,
-                                  encoding='ascii',
-                                  engine='python')[['file name', 'rx', 'ry', 'rz']]
-
-        angles2, angles_max2, angles_argmax2, angles_mean2 = compare(valid_truth2, results2_df)
+            angles1, angles_max1, angles_argmax1, angles_mean1 = compare(valid_truth1, results1_df)
 
 
-        #########################################################################################
-        total_max = max(angles_max1, angles_max2)
-        total_mean = (len(angles1) * angles_mean1 + len(angles2) * angles_mean2) / (len(angles1) + len(angles2))
+            ######################################################################################################
 
-        print(f"total_max: {total_max}")
-        print(f"total_mean: {total_mean}")
+            valid_set_2_csv_path = config.valid_set2_csv_path
+            valid_truth2 = pd.read_csv(valid_set_2_csv_path,
+                                       sep=r'\s*,\s*',
+                                       header=0,
+                                       encoding='ascii',
+                                       engine='python')[['file name', 'rx', 'ry', 'rz']]
+            abs_paths2 = [os.path.join(images_folder_path2, path) for path in valid_truth2['file name']]
+            for p in abs_paths2:
+                assert os.path.isfile(p)
+
+            hopenet_estimator = HopenetEstimatorImages(config,
+                                                       config,
+                                                       abs_paths2,
+                                                       snapshot_path)
+
+            results2 = hopenet_estimator.calculate_results()
+            write_results_to_csv(results2, config.output_dir, config.output_file_name2)
+            results2_path = os.path.join(config.output_dir, config.output_file_name2)
+            results2_df = pd.read_csv(results2_path,
+                                      sep=r'\s*,\s*',
+                                      header=0,
+                                      encoding='ascii',
+                                      engine='python')[['file name', 'rx', 'ry', 'rz']]
+
+            angles2, angles_max2, angles_argmax2, angles_mean2 = compare(valid_truth2, results2_df)
+
+
+            #########################################################################################
+            total_max = max(angles_max1, angles_max2)
+            total_mean = (len(angles1) * angles_mean1 + len(angles2) * angles_mean2) / (len(angles1) + len(angles2))
+
+            print(f"total_max snapshot #{snapshot_num}: {total_max}")
+            print(f"total_mean snapshot #{snapshot_num}: {total_mean}")
+            maxes.append(total_max)
+            means.append(total_mean)
+
+        best_mean_epoch = np.argmin(means)
+        best_max_epoch = np.argmin(maxes)
+
+        print(f"best max epoch: {best_max_epoch} with max: {maxes[best_max_epoch]}")
+        print(f"best max epoch: {best_mean_epoch} with mean: {means[best_mean_epoch]}")
 
 
 
