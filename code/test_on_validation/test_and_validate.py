@@ -54,7 +54,11 @@ def write_results_to_csv(results, output_dir, output_file_name):
 if __name__ == "__main__":
     def main():
         config = ConfigParser("config.yaml").parse()
-        snapshot_path = config.snapshot_path
+        snapshot_folder = config.snapshots_folder
+        snapshot_name = config.snapshot_name
+        # snapshot_path = config.snapshot_path
+        snapshot_num = 25
+        snapshot_path = os.path.join(snapshot_folder, snapshot_name + f"{snapshot_num}.pkl")
 
         images_folder_path1 = config.test_images_folder1_path
         images_folder_path2 = config.test_images_folder2_path
