@@ -131,8 +131,8 @@ if __name__ == "__main__":
             maxes.append(total_max)
             means.append(total_mean)
 
-        best_mean_epoch = np.argmin(means)
-        best_max_epoch = np.argmin(maxes)
+        best_mean_epoch = int(np.argmin(means))
+        best_max_epoch = int(np.argmin(maxes))
 
         print(f"best max epoch: {best_max_epoch} with max: {maxes[best_max_epoch]}")
         print(f"best max epoch: {best_mean_epoch} with mean: {means[best_mean_epoch]}")
@@ -140,8 +140,8 @@ if __name__ == "__main__":
         validation_error_per_epoch_file_name = "validation_error_per_epoch.csv"
         with open(validation_error_per_epoch_file_name, "w", newline='') as csv_file:
             writer = csv.writer(csv_file, delimiter=',')
-            for i, best_mean_epoch in enumerate(means):
-                writer.writerow([best_mean_epoch] + means[best_mean_epoch])
+            for i, (mean, mx) in enumerate(zip(means, maxes)):
+                writer.writerow([i + 1] + [mean] + [mx])
 
 
     main()
