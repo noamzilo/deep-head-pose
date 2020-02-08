@@ -30,11 +30,15 @@ from scipy.spatial.transform import Rotation as R
 
 
 class HopenetEstimatorImages(object):
-    def __init__(self, hopenet_config, validation_config, image_full_path_list):
+    def __init__(self, hopenet_config, validation_config, image_full_path_list, snapshot_path=None):
         self._hopenet_config = hopenet_config
         self._validation_config = validation_config
         self._image_path_list = image_full_path_list
         self._is_using_opencv_face_detector = self._hopenet_config.is_using_opencv_face_detector
+        if snapshot_path is None:
+            self._snapshot_path = self._hopenet_config.snapshot_path
+        else:
+            self._snapshot_path = snapshot_path
 
     def _setup(self):
         args = self._hopenet_config

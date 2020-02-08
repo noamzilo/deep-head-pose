@@ -30,10 +30,14 @@ def compare(ground_df, results_df):
         angle_deg = np.min([angle_deg, 180 - angle_deg])
         angles.append(angle_deg)
 
-    print(f"max: {np.max(angles)}")
-    print(f"argmax: {np.argmax(angles)}")
-    print(f"mean: {np.mean(angles)}")
-    return np.array(angles)
+    angles_max = np.max(angles)
+    angles_argmax = np.argmax(angles)
+    angles_mean = np.mean(angles)
+
+    print(f"max: {angles_max}")
+    print(f"argmax: {angles_argmax}")
+    print(f"mean: {angles_mean}")
+    return np.array(angles), angles_max, angles_argmax, angles_mean
 
 
 def write_results_to_csv(results, output_dir, output_file_name):
@@ -50,6 +54,8 @@ def write_results_to_csv(results, output_dir, output_file_name):
 if __name__ == "__main__":
     def main():
         config = ConfigParser("config.yaml").parse()
+        snapshot_path = config.snapshot_path
+
         images_folder_path1 = config.test_images_folder1_path
         images_folder_path2 = config.test_images_folder2_path
 
@@ -69,7 +75,7 @@ if __name__ == "__main__":
         hopenet_estimator = HopenetEstimatorImages(config,
                                                    config,
                                                    abs_paths1,
-                                                   )
+                                                   snapshot_path)
 
         results1 = hopenet_estimator.calculate_results()
         write_results_to_csv(results1, config.output_dir, config.output_file_name1)
@@ -80,7 +86,7 @@ if __name__ == "__main__":
                                   encoding='ascii',
                                   engine='python')[['file name', 'rx', 'ry', 'rz']]
 
-        compare(valid_truth1, results1_df)
+        angles1, angles_max1, angles_argmax1, angles_mean1 = compare(valid_truth1, results1_df)
 
 
         ######################################################################################################
@@ -98,7 +104,7 @@ if __name__ == "__main__":
         hopenet_estimator = HopenetEstimatorImages(config,
                                                    config,
                                                    abs_paths2,
-                                                   )
+                                                   snapshot_path)
 
         results2 = hopenet_estimator.calculate_results()
         write_results_to_csv(results2, config.output_dir, config.output_file_name2)
@@ -109,7 +115,16 @@ if __name__ == "__main__":
                                   encoding='ascii',
                                   engine='python')[['file name', 'rx', 'ry', 'rz']]
 
-        compare(valid_truth2, results2_df)
+        angles2, angles_max2, angles_argmax2, angles_mean2 = compare(valid_truth2, results2_df)
+
+
+        #########################################################################################
+        total_max = max(angles_max1, angles_max2)
+        total_mean = (len(angles1) * angles_mean1 + len(angles2) * angles_mean2) / (len(angles1) + len(angles2))
+
+        print(f"total_max: {total_max}")
+        print(f"total_mean: {total_mean}")
+
 
 
     main()
