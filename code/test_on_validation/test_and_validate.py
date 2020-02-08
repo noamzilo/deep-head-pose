@@ -3,8 +3,6 @@ from Utils.yaml_utils.ConfigParser import ConfigParser
 
 import pandas as pd
 import os
-from compare_output_to_ground.compare_output_to_ground import CompareOutputToGround
-
 from scipy.spatial.transform import Rotation as R
 import numpy as np
 
@@ -59,7 +57,7 @@ if __name__ == "__main__":
         # snapshot_path = config.snapshot_path
         means = []
         maxes = []
-        for snapshot_num in range(1, 25 + 1):
+        for snapshot_num in range(1, 30):
             snapshot_path = os.path.join(snapshot_folder, snapshot_name + f"{snapshot_num}.pkl")
 
             images_folder_path1 = config.test_images_folder1_path
@@ -139,6 +137,11 @@ if __name__ == "__main__":
         print(f"best max epoch: {best_max_epoch} with max: {maxes[best_max_epoch]}")
         print(f"best max epoch: {best_mean_epoch} with mean: {means[best_mean_epoch]}")
 
+        validation_error_per_epoch_file_name = "validation_error_per_epoch.csv"
+        with open(validation_error_per_epoch_file_name, "w", newline='') as csv_file:
+            writer = csv.writer(csv_file, delimiter=',')
+            for i, best_mean_epoch in enumerate(means):
+                writer.writerow([best_mean_epoch] + means[best_mean_epoch])
 
 
     main()
