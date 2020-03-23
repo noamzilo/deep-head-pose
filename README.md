@@ -1,3 +1,18 @@
+# Final Project for the open university course 22928 - Computer Vision  #
+
+See the report at HopenetReport.pdf
+
+The requirements for the project were unclear at best, and so I decided to make the original hopenet usable.
+
+The benchmark for success in the course was not based on the data form any dataset, but on comparison to some other, unknown algorithm.
+
+
+I decided to just make the original code work again, which proved to be not as easy as one would expect.
+
+This project was very insightful overall. I just wish next time I get to make at least one something of my own.
+
+
+
 # Hopenet #
 
 <div align="center">
