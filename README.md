@@ -12,6 +12,10 @@ I decided to just make the original code work again, which proved to be not as e
 This project was very insightful overall. I just wish next time I get to make at least one something of my own.
 
 
+* A plead for forgiveness:
+
+The code was not meant to ever be used after the course is finished, and maintainability was dumped nearing the deadline.
+
 
 # Hopenet #
 
