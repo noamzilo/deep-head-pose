@@ -1,28 +1,31 @@
 # Final Project for the open university course 22928 - Computer Vision  #
 
+This is my very first deep learning project.
+
+# Project definition:
+
+Create an algorithm which recieves as input an image of a single face, and outputs its pose, in rotvec form.
+
+Success criterion is determined by comparison to the output of another algorithm, which was not given.
+
+Since it was impossible to optimize for an algorithm (which on its own has error), and all I had was about 100 images tagged by that unknown algorithm, I decided to just optimize for the tagged data of 300W-LP, using the original hopenet, and choosing the epoch which minimizes validation error on the set I did have, which was tagged by the unknown algorithm.
+
+This is suboptimal, but was the best under the time constraints.
+
+Again - the benchmark for success in the course was not based on the data of any dataset, but on comparison to some other, unknown algorithm.
+
+
 See the report at HopenetReport.pdf
 
-The requirements for the project were unclear at best, and so I decided to make the original hopenet usable.
 
-The benchmark for success in the course was not based on the data form any dataset, but on comparison to some other, unknown algorithm.
+Making this code work required migrating to python 3, finding data, cleaning the data, learning GCP, and making quite a few adaptations to the validation set. 
 
-
-I decided to just make the original code work again, which proved to be not as easy as one would expect.
+I am quite pleased bt the result as a first deep learning project.
 
 This project was very insightful overall. I just wish next time I get to make at least one something of my own.
 
 
-
 The code was not meant to ever be used after the course is finished, and maintainability was dumped nearing the deadline.
-
-<div align="center">
-  <img src="https://i.imgur.com/onTS3AN.png" width="380"><br><br>
-</div>
-
-
-<div align="center">
-  <img src="https://i.imgur.com/Wt1g3tE.png" width="380"><br><br>
-</div>
 
 <div align="center">
   <img src="https://i.imgur.com/nVkOQ5C.png" width="380"><br><br>
