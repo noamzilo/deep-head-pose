@@ -8,7 +8,7 @@ Create an algorithm which recieves as input an image of a single face, and outpu
 
 Success criterion is determined by comparison to the output of another algorithm, which was not given.
 
-Since it was impossible to optimize for an algorithm (which on its own has error), and all I had was about 100 images tagged by that unknown algorithm, I decided to just optimize for the tagged data of 300W-LP, using the original hopenet, and choosing the epoch which minimizes validation error on the set I did have, which was tagged by the unknown algorithm.
+Since it was impossible to optimize for an algorithm (which on its own has error), and all I had was about 100 images tagged by that unknown algorithm, I decided to just optimize for the tagged data of 300W-LP [which required cleaning], using the original hopenet, and choosing the epoch which minimizes validation error on the set I did have, which was tagged by the unknown algorithm.
 
 This is suboptimal, but was the best under the time constraints.
 
@@ -18,9 +18,9 @@ Again - the benchmark for success in the course was not based on the data of any
 See the report at HopenetReport.pdf
 
 
-Making this code work required migrating to python 3, finding data, cleaning the data, learning GCP, and making quite a few adaptations to the validation set. 
+Making this work required migrating to python 3, finding data, cleaning the data, learning GCP, and making quite a few adaptations to the validation set.
 
-I am quite pleased bt the result as a first deep learning project.
+I am quite pleased by the result as a first deep learning project.
 
 This project was very insightful overall. I just wish next time I get to make at least one something of my own.
 
