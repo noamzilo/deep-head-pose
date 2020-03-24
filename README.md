@@ -16,16 +16,16 @@ This project was very insightful overall. I just wish next time I get to make at
 The code was not meant to ever be used after the course is finished, and maintainability was dumped nearing the deadline.
 
 <div align="center">
-  <img src="https://imgur.com/onTS3AN" width="380"><br><br>
+  <img src="https://i.imgur.com/onTS3AN.png" width="380"><br><br>
 </div>
 
 
 <div align="center">
-  <img src="https://imgur.com/Wt1g3tE" width="380"><br><br>
+  <img src="https://i.imgur.com/Wt1g3tE.png" width="380"><br><br>
 </div>
 
 <div align="center">
-  <img src="https://imgur.com/undefined" width="380"><br><br>
+  <img src="https://i.imgur.com/nVkOQ5C.png" width="380"><br><br>
 </div>
 
 
