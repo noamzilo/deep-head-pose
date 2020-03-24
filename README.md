@@ -27,13 +27,14 @@ This project was very insightful overall. I just wish next time I get to make at
 
 The code was not meant to ever be used after the course is finished, and maintainability was dumped nearing the deadline.
 
+# My results
 <div align="center">
   <img src="https://i.imgur.com/nVkOQ5C.png" width="380"><br><br>
 </div>
 
 
 
-# Hopenet #
+# Original Hopenet Readme #
 
 <div align="center">
   <img src="https://i.imgur.com/K7jhHOg.png" width="380"><br><br>
