@@ -33,6 +33,10 @@ The code was not meant to ever be used after the course is finished, and maintai
 </div>
 
 
+# Data sets:
+300W-LP: https://drive.google.com/file/d/0B7OEHD3T4eCkVGs0TkhUWFN6N1k/view?usp=sharing
+AFLW (I didn't use it): http://www.cbsr.ia.ac.cn/users/xiangyuzhu/projects/3DDFA/Database/AFLW2000-3D.zip
+
 
 # Original Hopenet Readme #
 
